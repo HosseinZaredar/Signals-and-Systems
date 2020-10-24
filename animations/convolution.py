@@ -16,6 +16,7 @@ class Conv(GraphScene):
         "x_axis_width": 18,
         "y_axis_height": 9,
     }
+    
     def construct(self):
         self.setup_axes()
         label_n = TextMobject(" n ")
@@ -38,7 +39,7 @@ class Conv(GraphScene):
 
 
         # drawing x:
-        tx = np.array(range(-7, 7, 1))
+        tx = np.array(range(2, 8, 1))
         yx = 3 * np.sin(tx)
 
         gx1 = VGroup()
@@ -174,28 +175,29 @@ class Conv(GraphScene):
 
 
         # moving h[-k] to left
+        offset = (-2 + tx[0] + th[0]) / 2
         self.remove(gh1)
-        self.play(gh2.shift, [-6, 0, 0], run_time=1.5)
+        self.play(gh2.shift, [offset, 0, 0], run_time=1.5)
         self.wait(1)
 
         # drawing window
         tw_min = -th[len(th) - 1]
         tw_max = -th[0]
-        yw_min = min(*yx)
-        yw_max = max(*yx)
+        yw_min = min(*yx, *yh)
+        yw_max = max(*yx, *yh)
 
         rect = Polygon([tw_min/2-1/4, yw_min/2-1/4, 0], [tw_max/2+1/4, yw_min/2-1/4, 0],
                 [tw_max/2+1/4, yw_max/2+1/4, 1], [tw_min/2-1/4, yw_max/2+1/4, 0])
         rect.set_color(WHITE)
-        rect.shift([-6, 0, 0])
+        rect.shift([offset, 0, 0])
         self.play(Write(rect))
 
         self.wait(1)
 
         # writing h[n - k]
-        h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (tw_min - 11))
+        h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset))
         h_nmk.set_color(BLUE)
-        h_nmk.move_to([-6 + (tw_min + tw_max)/4, yw_max/2+1/2 + 0.05, 0])
+        h_nmk.move_to([offset + (tw_min + tw_max)/4, yw_max/2+1/2 + 0.05, 0])
         self.play(ReplacementTransform(hmk_text, h_nmk))
 
         self.wait(1)
@@ -203,17 +205,18 @@ class Conv(GraphScene):
         # moving the window and h[n - k]
         window = VGroup(gh2, rect, h_nmk)
 
-        for i in range(22):
-            next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (tw_min - 11 + i + 1))
+        offset = (-2 + tx[0] + th[0]) / 2
+        right_offset = (2 + tx[len(tx) - 1] + th[len(th) - 1]) / 2
+
+        for i in range(1, int(2 * (right_offset - offset)) + 1):
+            next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset + i))
             next_h_nmk.set_color(BLUE)
-            next_h_nmk.move_to([-6 + (tw_min + tw_max)/4 + 0.5 * i + 0.5, yw_max/2+1/2 + 0.05, 0])
+            next_h_nmk.move_to([offset + (tw_min + tw_max)/4 + 0.5 * i, yw_max/2+1/2 + 0.05, 0])
             self.play(window.shift, [0.5, 0, 0], Transform(h_nmk, next_h_nmk), run_time=0.5)
             self.wait(1)
 
         
         self.wait(2)
-
-
 
 
     def setup_axes(self):
