@@ -202,11 +202,24 @@ class Conv(GraphScene):
 
         self.wait(1)
 
-        # moving the window and h[n - k]
-        window = VGroup(gh2, rect, h_nmk)
+        # grouping the window and h[n - k]
+        window = VGroup(gh2, rect)
+
+        # adding extra 0 entries to x[k]
+        extra_zeros = [0 for i in range(3 + tw_max - tw_min)]
+        yx = np.array(extra_zeros + list(yx) + extra_zeros)
 
         offset = (-2 + tx[0] + th[0]) / 2
         right_offset = (2 + tx[len(tx) - 1] + th[len(th) - 1]) / 2
+
+        # result of convolution
+        res = [0.0]
+
+        # showing the first 0.00
+        pr = TextMobject('0.00')
+        pr.move_to([offset, -2.5, 0])
+        pr.rotate(-PI/2)
+        self.play(Write(pr))
 
         for i in range(1, int(2 * (right_offset - offset)) + 1):
             next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset + i))
@@ -214,6 +227,18 @@ class Conv(GraphScene):
             next_h_nmk.move_to([offset + (tw_min + tw_max)/4 + 0.5 * i, yw_max/2+1/2 + 0.05, 0])
             self.play(window.shift, [0.5, 0, 0], Transform(h_nmk, next_h_nmk), run_time=0.5)
             self.wait(1)
+
+            # doing the partial convolution
+            sum = 0
+            for j in range(len(th)):
+                sum += yh[len(th) - j - 1] * yx[int(2 * offset) + i + tw_max + 1 + j]
+            res.append(sum)
+
+            # showing the partial result
+            pr = TextMobject('{:.2f}'.format(sum))
+            pr.move_to([offset + i/2, -2.5, 0])
+            pr.rotate(-PI/2)
+            self.play(Write(pr))
 
         
         self.wait(2)
