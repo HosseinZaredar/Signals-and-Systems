@@ -39,8 +39,8 @@ class Conv(GraphScene):
 
 
         # drawing x:
-        tx = np.array(range(2, 8, 1))
-        yx = 3 * np.sin(tx)
+        tx = np.array(range(-6, 6, 1))
+        yx = 2 * np.sin(tx)
 
         gx1 = VGroup()
 
@@ -206,8 +206,8 @@ class Conv(GraphScene):
         window = VGroup(gh2, rect)
 
         # adding extra 0 entries to x[k]
-        extra_zeros = [0 for i in range(3 + tw_max - tw_min)]
-        yx = np.array(extra_zeros + list(yx) + extra_zeros)
+        extra_zeros = [0 for i in range(1 + tw_max - tw_min)]
+        yx = np.array(extra_zeros + list(yx) + extra_zeros + [0])
 
         offset = (-2 + tx[0] + th[0]) / 2
         right_offset = (2 + tx[len(tx) - 1] + th[len(th) - 1]) / 2
@@ -215,11 +215,15 @@ class Conv(GraphScene):
         # result of convolution
         res = [0.0]
 
+        # result texts
+        res_texts = []
+
         # showing the first 0.00
         pr = TextMobject('0.00')
         pr.move_to([offset, -2.5, 0])
         pr.rotate(-PI/2)
         self.play(Write(pr))
+        res_texts.append(pr)
 
         for i in range(1, int(2 * (right_offset - offset)) + 1):
             next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset + i))
@@ -231,7 +235,7 @@ class Conv(GraphScene):
             # doing the partial convolution
             sum = 0
             for j in range(len(th)):
-                sum += yh[len(th) - j - 1] * yx[int(2 * offset) + i + tw_max + 1 + j]
+                sum += yh[len(th) - j - 1] * yx[i + tw_min + j]
             res.append(sum)
 
             # showing the partial result
@@ -239,8 +243,28 @@ class Conv(GraphScene):
             pr.move_to([offset + i/2, -2.5, 0])
             pr.rotate(-PI/2)
             self.play(Write(pr))
+            res_texts.append(pr)
 
-        
+
+        self.wait(2)
+
+
+        # removing stuff
+        self.play(FadeOut(window))
+        self.play(FadeOut(gx1))
+        self.play(FadeOut(next_h_nmk), FadeOut(h_nmk), FadeOut(xk_text),
+         FadeOut(xn_text), FadeOut(wind_and_multiply))
+
+        # draw the result signal
+        t_res = range(int(2 * offset), int(2 * right_offset) + 1)
+
+        for i in range(len(t_res)):
+            l_res = Line([t_res[i]/2, 0, 0], [t_res[i]/2, res[i]/2, 0])
+            l_res.set_color(WHITE)
+            self.play(Transform(res_texts[i], l_res))
+            d_res = Dot([t_res[i]/2, res[i]/2, 0])
+            self.play(Write(d_res, run_time=0.1))
+
         self.wait(2)
 
 
