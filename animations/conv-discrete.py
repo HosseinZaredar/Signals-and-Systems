@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 from manimlib.imports import *
 
-class Conv(GraphScene):
+class Conv(Scene):
     CONFIG = {
-        "y_max": 9,
-        "y_min": -9,
-        "x_max": 18,
-        "x_min": -18,
-        "y_tick_frequency": 1,
-        "x_tick_frequency": 1,
-        "graph_origin": ORIGIN,
-        "y_axis_label": None,
-        "x_axis_label": None,
-        "x_axis_width": 18,
-        "y_axis_height": 9,
     }
 
     def construct(self):
-        self.setup_axes()
+
+        # drawing axes
+        x_axis = NumberLine(x_min=-16, x_max=16, unit_size=0.5, numbers_with_elongated_ticks=[])
+        x_axis.set_stroke(width=1)
+        x_axis.set_color(RED)
+        y_axis = NumberLine(x_min=-10, x_max=10, unit_size=0.5, numbers_with_elongated_ticks=[])
+        y_axis.set_stroke(width=1)
+        y_axis.set_color(RED)
+        y_axis.rotate(PI/2)
+        self.play(Write(x_axis), Write(y_axis))
+
         label_n = TextMobject(" n ")
         label_n.move_to([6.5, 0.4, 0])
         label_n.set_color(RED)
@@ -286,19 +285,3 @@ class Conv(GraphScene):
             self.play(Write(d_res, run_time=0.05))
 
         self.wait(2)
-
-    def setup_axes(self):
-        GraphScene.setup_axes(self)
-
-        # width of edges
-        self.x_axis.set_stroke(width=1)
-        self.y_axis.set_stroke(width=1)
-
-        # color of edges
-        self.x_axis.set_color(RED)
-        self.y_axis.set_color(RED)
-        self.play(
-            *[Write(objeto)
-              for objeto in [self.y_axis, self.x_axis]],
-            run_time=2
-        )

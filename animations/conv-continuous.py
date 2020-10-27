@@ -86,7 +86,7 @@ class Conv(GraphScene):
 
 
         # drawing an extra number line for the result of convolution
-        number_line = NumberLine(x_min=-8, x_max=8, unit_size=1, numbers_with_elongated_ticks=[])
+        number_line = NumberLine(y_min=-8, y_max=8, unit_size=1, numbers_with_elongated_ticks=[])
         self.play(Write(number_line))
 
 
