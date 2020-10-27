@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-from pygments.styles.paraiso_dark import RED, BLUE, GREEN, ORANGE, YELLOW
-from pygments.styles.rainbow_dash import GREY
-from pyreadline.console import WHITE
-
 from manimlib.imports import *
-
 
 class Conv(GraphScene):
     CONFIG = {
