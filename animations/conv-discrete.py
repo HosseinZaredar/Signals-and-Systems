@@ -1,12 +1,34 @@
 #!/usr/bin/env python
+from pygments.styles.paraiso_dark import RED, BLUE, GREEN, ORANGE, YELLOW, PURPLE
+from pygments.styles.rainbow_dash import GREY
+from pyreadline.console import WHITE
+
 from manimlib.imports import *
 
-class Conv(Scene):
+
+class Conv(MovingCameraScene):
     CONFIG = {
+        # "y_max": 9,
+        # "y_min": -9,
+        # "x_max": 18,
+        # "x_min": -18,
+        # "y_tick_frequency": 1,
+        # "x_tick_frequency": 1,
+        # "graph_origin": ORIGIN,
+        # "y_axis_label": None,
+        # "x_axis_label": None,
+        # "x_axis_width": 18,
+        # "y_axis_height": 9,
+        # "zoom_factor": 0.3,
+        # "zoomed_display_height": 1,
+        # "zoomed_display_width": 6,
+        # "image_frame_stroke_width": 20,
+        # "zoomed_camera_config": {
+        #     "default_frame_stroke_width": 3,
+        # },
     }
 
     def construct(self):
-
         # drawing axes
         x_axis = NumberLine(x_min=-16, x_max=16, unit_size=0.5, numbers_with_elongated_ticks=[])
         x_axis.set_stroke(width=1)
@@ -14,9 +36,10 @@ class Conv(Scene):
         y_axis = NumberLine(x_min=-10, x_max=10, unit_size=0.5, numbers_with_elongated_ticks=[])
         y_axis.set_stroke(width=1)
         y_axis.set_color(RED)
-        y_axis.rotate(PI/2)
+        y_axis.rotate(PI / 2)
         self.play(Write(x_axis), Write(y_axis))
 
+        # self.setup_axes()
         label_n = TextMobject(" n ")
         label_n.move_to([6.5, 0.4, 0])
         label_n.set_color(RED)
@@ -112,9 +135,9 @@ class Conv(Scene):
         self.play(FadeOut(conv_text), Transform(conv_formula, corner_conv_formula))
         self.wait(1)
 
-        #drawing convolution rect
+        # drawing convolution rect
         convolution_rect = Polygon([-6.7, 2.6, 0], [-2.7, 2.6, 0],
-                              [-2.7, 3.4, 0], [-6.7, 3.4, 0])
+                                   [-2.7, 3.4, 0], [-6.7, 3.4, 0])
         convolution_rect.set_color(WHITE)
         self.play(Write(convolution_rect))
         self.wait(1)
@@ -123,7 +146,7 @@ class Conv(Scene):
         n_to_k = TextMobject("""$$Step \\ 1: \\; n \\rightarrow k$$""")
         n_to_k.move_to([-5.05, 2.2, 0])
         self.play(Write(n_to_k))
-        self.wait(1)
+        self.wait(1.5)
 
         xk_text = TextMobject("""
             $$x[k]$$
@@ -144,7 +167,8 @@ class Conv(Scene):
         self.play(
             Transform(xn_text, xk_text),
             ReplacementTransform(hn_text, hk_text),
-            Transform(label_n, label_k)
+            ReplacementTransform(label_n, label_k),
+            run_time=1.5
         )
         self.wait(1)
 
@@ -174,10 +198,15 @@ class Conv(Scene):
         self.play(Write(wind_and_multiply))
         self.wait(1)
 
+        # writing h[n - k]
+        h_nmk = TextMobject("{\\footnotesize$h[n -k]$}")
+        h_nmk.set_color(BLUE)
+        h_nmk.move_to([4, 2.3, 0])
+
         # moving h[-k] to left
         offset = (-2 + tx[0] + th[0]) / 2
         self.remove(gh1)
-        self.play(gh2.shift, [offset, 0, 0], run_time=1.5)
+        self.play(gh2.shift, [offset, 0, 0], ReplacementTransform(hmk_text, h_nmk), run_time=2)
         self.wait(1)
 
         # drawing window
@@ -187,17 +216,10 @@ class Conv(Scene):
         yw_max = max(*yx, *yh)
 
         window_rect = Polygon([tw_min / 2 - 1 / 4, yw_min / 2 - 1 / 4, 0], [tw_max / 2 + 1 / 4, yw_min / 2 - 1 / 4, 0],
-                       [tw_max / 2 + 1 / 4, yw_max / 2 + 1 / 4, 1], [tw_min / 2 - 1 / 4, yw_max / 2 + 1 / 4, 0])
+                              [tw_max / 2 + 1 / 4, yw_max / 2 + 1 / 4, 1], [tw_min / 2 - 1 / 4, yw_max / 2 + 1 / 4, 0])
         window_rect.set_color(YELLOW)
         window_rect.shift([offset, 0, 0])
         self.play(Write(window_rect))
-        self.wait(1)
-
-        # writing h[n - k]
-        h_nmk = TextMobject("{\\footnotesize$h[n -k]$}")
-        h_nmk.set_color(BLUE)
-        h_nmk.move_to([4, 2.3, 0])
-        self.play(ReplacementTransform(hmk_text, h_nmk))
         self.wait(1)
 
         # writing h[%d - k]
@@ -240,6 +262,38 @@ class Conv(Scene):
         self.play(Write(pr))
         res_texts.append(pr)
 
+        #######################
+        # zooming camera
+
+        # Arrange the objects
+        window.arrange_submobjects(RIGHT, buff=3)
+
+        # Save the state of camera
+        self.camera_frame.save_state()
+
+        # Animation of the camera
+        self.play(
+            # Set the size with the width of a object
+            self.camera_frame.set_width, window.get_width() * 1.2,
+            # Move the camera to the object
+            self.camera_frame.move_to, offset + (tw_min + tw_max) / 4
+        )
+        self.wait()
+
+        # Restore the state saved
+        self.play(Restore(self.camera_frame))
+
+        self.play(
+            self.camera_frame.set_height, window.get_width() * 1.2,
+            self.camera_frame.move_to, window
+        )
+        self.wait()
+
+        self.play(Restore(self.camera_frame))
+
+        self.wait()
+        #############################################
+
         for i in range(1, int(2 * (right_offset - offset)) + 1):
             next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset + i))
             next_h_nmk.set_color(BLUE)
@@ -248,7 +302,8 @@ class Conv(Scene):
             next_n_counter.move_to([4, 2.3, 0])
             next_n_counter.set_color(YELLOW)
             next_n_counter.scale(0.9)
-            self.play(window.shift, [0.5, 0, 0], Transform(h_dmk, next_h_nmk), Transform(n_counter, next_n_counter), run_time=0.5)
+            self.play(window.shift, [0.5, 0, 0], Transform(h_dmk, next_h_nmk), Transform(n_counter, next_n_counter),
+                      run_time=0.5)
             self.wait(1)
 
             # doing the partial convolution
@@ -267,11 +322,17 @@ class Conv(Scene):
 
         self.wait(2)
 
+        # back to n!
+        new_label_n = TextMobject(" n ")
+        new_label_n.move_to([6.5, 0.4, 0])
+        new_label_n.set_color(RED)
+
         # removing stuff
         self.play(FadeOut(window))
         self.play(FadeOut(gx1))
         self.play(FadeOut(next_h_nmk), FadeOut(h_dmk), FadeOut(xk_text),
-                  FadeOut(xn_text), FadeOut(wind_and_multiply), FadeOut(next_n_counter), FadeOut(n_counter))
+                  FadeOut(xn_text), FadeOut(wind_and_multiply), FadeOut(next_n_counter), FadeOut(n_counter),
+                  ReplacementTransform(label_k, new_label_n))
 
         # draw the result signal
         t_res = range(int(2 * offset), int(2 * right_offset) + 1)
@@ -283,5 +344,20 @@ class Conv(Scene):
             d_res = Dot([t_res[i] / 2, res[i] / 2, 0])
             d_res.set_color(YELLOW)
             self.play(Write(d_res, run_time=0.05))
+        self.wait(2)  # TODO why the fuck does n vanish?!
 
-        self.wait(2)
+    # def setup_axes(self):
+    #     GraphScene.setup_axes(self)
+    #
+    #     # width of edges
+    #     self.x_axis.set_stroke(width=1)
+    #     self.y_axis.set_stroke(width=1)
+    #
+    #     # color of edges
+    #     self.x_axis.set_color(RED)
+    #     self.y_axis.set_color(RED)
+    #     self.play(
+    #         *[Write(objeto)
+    #           for objeto in [self.y_axis, self.x_axis]],
+    #         run_time=2
+    #     )
