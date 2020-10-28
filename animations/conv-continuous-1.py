@@ -231,7 +231,6 @@ class Conv(GraphScene):
         # handing the area
         one = self.get_graph(lambda x: 1, x_min=-1, x_max=1)
         area = self.color_area(one, -1, 1)
-        self.get_area
         area.set_color(YELLOW)
 
         self.play(

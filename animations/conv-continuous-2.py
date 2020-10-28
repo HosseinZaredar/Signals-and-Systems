@@ -220,8 +220,10 @@ class Conv(GraphScene):
         y1.set_color(ORANGE)
         y2 = self.get_graph(lambda x : 2 - 2 * np.exp(-1/2 * x) -y0 + yz, color = GREEN, x_min = 0,  x_max = 2)
         y2.set_color(ORANGE)
-        y3 = self.get_graph(lambda x : (2 * np.e - 2) * np.exp(-1/2 * x) - y0 + yz, color = GREEN, x_min = 2,  x_max = 5)
+        y3 = self.get_graph(lambda x : (2 * np.e - 2) * np.exp(-1/2 * x) - y0 + yz, color = GREEN, x_min = 2,  x_max = 4)
         y3.set_color(ORANGE)
+        y4 = self.get_graph(lambda x : (2 * np.e - 2) * np.exp(-1/2 * x) - y0 + yz, color = GREEN, x_min = 4,  x_max = 5)
+        y4.set_color(ORANGE)
 
         y.add(y1, y2, y3)
 
@@ -229,10 +231,10 @@ class Conv(GraphScene):
         # moving window
         self.play(
             hmtau.shift, [5, 0, 0],
-            t_value.set_value, -1,
+            t_value.set_value, 0,
             ShowCreation(y1),
             rate_func=linear,
-            run_time=4
+            run_time=5
         )
 
         # handing the first area
@@ -241,7 +243,7 @@ class Conv(GraphScene):
 
         self.play(
             hmtau.shift, [2, 0, 0],
-            t_value.set_value, 1,
+            t_value.set_value, 2,
             ShowCreation(area1),
             ShowCreation(y2),
             rate_func=linear,
@@ -249,25 +251,63 @@ class Conv(GraphScene):
         )
 
         # handing the second area
-        area2 = self.color_area(x3, 2, 5)
+        area2 = self.color_area(x3, 2, 4)
         area2.set_color(YELLOW)
 
+        # sequentially remvoing the first area
+        rm1_tracker = ValueTracker(0)
+        def area1_remover(obj):
+            for i in range(int(rm1_tracker.get_value())):
+                obj.submobjects[i].set_opacity(0)
+
+        area1.add_updater(area1_remover)
+        self.add(area1)
+
         self.play(
-            hmtau.shift, [3, 0, 0],
-            t_value.set_value, 3,
+            hmtau.shift, [2, 0, 0],
+            t_value.set_value, 4,
             ShowCreation(area2),
             ShowCreation(y3),
+            rm1_tracker.increment_value, 999,
             rate_func=linear,
             run_time=4
         )
 
+        area1.remove_updater(area1_remover)
+        self.remove(area1)
+
+        # handing the third area
+        area3 = self.color_area(x3, 4, 5)
+        area3.set_color(YELLOW)
+
+        # sequentially removing half of the second area
+        rm2_tracker = ValueTracker(0)
+        def area2_remover(obj):
+            for i in range(int(rm2_tracker.get_value())):
+                obj.submobjects[i].set_opacity(0)
+
+        area2.add_updater(area2_remover)
+        self.add(area1)
+
+        self.play(
+            hmtau.shift, [1, 0, 0],
+            t_value.set_value, 5,
+            ShowCreation(area3),
+            ShowCreation(y4),
+            rm2_tracker.increment_value, 499,
+            rate_func=linear,
+            run_time=2
+        )
+
+        area2.remove_updater(area2_remover)
+
         self.wait(2)
 
-        # removing stuff
-        self.play(FadeOut(hmtau), FadeOut(group), FadeOut(label_tau),
-            FadeOut(xt), FadeOut(area1), FadeOut(area2), FadeOut(xtau_text), FadeOut(self.x_axis))
-        self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula), FadeOut(xt_text),
-            FadeOut(hmtau_text), FadeOut(label_t), FadeOut(wind_and_multiply))
+        # # removing stuff
+        # self.play(FadeOut(hmtau), FadeOut(group), FadeOut(label_tau),
+        #     FadeOut(xt), FadeOut(area1), FadeOut(area2), FadeOut(xtau_text), FadeOut(self.x_axis))
+        # self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula), FadeOut(xt_text),
+        #     FadeOut(hmtau_text), FadeOut(label_t), FadeOut(wind_and_multiply))
 
         self.wait(2)
 
