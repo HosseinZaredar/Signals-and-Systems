@@ -20,8 +20,6 @@ class Conv(GraphScene):
     def construct(self):
         self.setup_axes()
 
-        # TODO play with rate_func 
-
         # y0
         y0 = -2.5
 
@@ -127,7 +125,7 @@ class Conv(GraphScene):
         xtau_text.move_to([4, 3, 0])
 
         htau_text = TextMobject("""
-            $$h(\\tau)$$
+            $$h(\\tau)=u(\\tau)$$
         """)
         htau_text.set_color(BLUE)
         htau_text.move_to([4, 2.3, 0])
@@ -152,7 +150,7 @@ class Conv(GraphScene):
         self.wait(1)
 
         hmtau_text = TextMobject("""
-            $$h(-\\tau)$$
+            $$h(-\\tau)=u(-\\tau)$$
         """)
         hmtau_text.set_color(BLUE)
         hmtau_text.move_to([4, 2.3, 0])
