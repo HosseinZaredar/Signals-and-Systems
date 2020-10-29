@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-from pygments.styles.paraiso_dark import RED, BLUE, GREEN, ORANGE, YELLOW, PURPLE
-from pygments.styles.rainbow_dash import GREY
-from pyreadline.console import WHITE
 
 from manimlib.imports import *
 
@@ -241,7 +238,6 @@ class Conv(MovingCameraScene):
 
         # n counter
         n_counter = TextMobject("{n = \\footnotesize$ %d $}" % (2 * offset))
-        # n_counter.move_to([offset - 1, -1.5, 0])
         n_counter.move_to([4, 2.3, 0])
         n_counter.set_color(YELLOW)
         n_counter.scale(0.9)
@@ -262,38 +258,6 @@ class Conv(MovingCameraScene):
         self.play(Write(pr))
         res_texts.append(pr)
 
-        #######################
-        # zooming camera
-
-        # Arrange the objects
-        window.arrange_submobjects(RIGHT, buff=3)
-
-        # Save the state of camera
-        self.camera_frame.save_state()
-
-        # Animation of the camera
-        self.play(
-            # Set the size with the width of a object
-            self.camera_frame.set_width, window.get_width() * 1.2,
-            # Move the camera to the object
-            self.camera_frame.move_to, offset + (tw_min + tw_max) / 4
-        )
-        self.wait()
-
-        # Restore the state saved
-        self.play(Restore(self.camera_frame))
-
-        self.play(
-            self.camera_frame.set_height, window.get_width() * 1.2,
-            self.camera_frame.move_to, window
-        )
-        self.wait()
-
-        self.play(Restore(self.camera_frame))
-
-        self.wait()
-        #############################################
-
         for i in range(1, int(2 * (right_offset - offset)) + 1):
             next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset + i))
             next_h_nmk.set_color(BLUE)
@@ -306,10 +270,141 @@ class Conv(MovingCameraScene):
                       run_time=0.5)
             self.wait(1)
 
-            # doing the partial convolution
+            #######################
+            # zooming camera
+
+            # Arrange the objects
+
+            # Save the state of camera
+            self.camera_frame.save_state()
+
+            # Animation of the camera
+            self.play(
+                # Set the size with the width of a object
+                self.camera_frame.set_width, window.get_width() * 3,
+                # Move the camera to the object
+                self.camera_frame.move_to, gh2
+            )
+            self.wait(1)
+
+            # # writing small n counter
+            # small_n_counter = TextMobject("{n = \\footnotesize$ %d $}" % (2 * offset))
+            # small_n_counter.move_to([offset + tw_min / 2 + 1 / 20, yw_max / 2 + 1 / 6, 0])
+            # # small_n_counter.move_to([offset + (tw_min + tw_max) / 4, yw_max / 2 + 1 / 2 + 0.05, 0])
+            # # small_n_counter.set_color(YELLOW)
+            # small_n_counter.scale(0.2)
+            # self.play(Write(small_n_counter))
+            # self.wait(1)
+
+            # writing k counter
+            k_counter = TextMobject("{k = \\footnotesize$ %d $}" % (tw_min))
+            k_counter.move_to([offset + tw_min / 2 + 9 / 20, yw_max / 2 + 1 / 6, 0])
+            k_counter.set_color(PINK)
+            k_counter.scale(0.2)
+            self.play(Write(k_counter))
+            self.wait(1)
+
+            # doing the partial convolution (camera zoom: on)
             sum = 0
+            th_start = 1  # th start index
+            tx_start = 0  # tx start index
             for j in range(len(th)):
+
+                mul_lines = []
+                mul_dots = []
+
                 sum += yh[len(th) - j - 1] * yx[i + tw_min + j]
+                # writing next k counter
+                next_k_counter = TextMobject("{k = \\footnotesize$ %d $}" % (tw_min + j))
+                next_k_counter.move_to([offset + tw_min / 2 + j / 2 + 9 / 20, yw_max / 2 + 1 / 6, 0])
+                next_k_counter.set_color(PINK)
+                next_k_counter.scale(0.2)
+                self.play(Transform(k_counter, next_k_counter))
+                self.wait(1)
+
+                print('th[-th_start], offset, i: {}, {}, {}'.format(th[-th_start], offset, i))
+                print('tw_min {}'.format(tw_min))
+                th_term = th_start + 2 * offset + i - 1 + tw_min
+                tx_term = tx[tx_start]
+                print('---------------')
+                print('i: {}'.format(i))
+                print(th_term, tx_term)
+                print('---------------')
+                if (th_term == tx_term):
+                    gh2[- th_start].set_color(PURPLE)  # dot
+                    gh2[- len(gh2) // 2 - th_start].set_color(PURPLE)  # line
+                    gx1[tx_start].set_color(PURPLE)  # dot
+                    gx1[tx_start + len(gx1) // 2].set_color(PURPLE)  # line
+                    th_start = th_start + 1
+                    tx_start = tx_start + 1
+
+                    # writing partial multiple
+                    mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
+
+                    orange_line = Line([th_term / 2, 0, 0], [th_term / 2, mul_value / 2, 0])
+                    orange_line.set_color(ORANGE)
+                    mul_lines.append(orange_line)
+
+                    orange_dot = Dot([th_term / 2, mul_value / 2, 0])
+                    orange_dot.set_color(ORANGE)
+                    mul_dots.append(orange_dot)
+
+                    self.play(Write(orange_line), Write(orange_dot))
+
+                elif (th_term < tx_term):
+                    gh2[- th_start].set_color(WHITE)  # dot
+                    gh2[- len(gh2) // 2 - th_start].set_color(WHITE)  # line
+                    th_start = th_start + 1
+
+                    # writing partial multiple
+                    mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
+
+                    red_line = Line([th_term / 2, 0, 0], [th_term / 2, mul_value / 2, 0])
+                    red_line.set_color(RED)
+                    mul_lines.append(red_line)
+
+                    red_dot = Dot([th_term / 2, mul_value / 2, 0])
+                    red_dot.set_color(RED)
+                    mul_dots.append(red_dot)
+
+                    self.play(Write(red_line), Write(red_dot))
+                else:
+                    gx1[tx_start].set_color(WHITE)  # dot
+                    gx1[tx_start + len(gx1) // 2].set_color(WHITE)  # line
+                    tx_start = tx_start + 1
+
+                    # writing partial multiple
+                    mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
+
+                    red_line = Line([tx_term / 2, 0, 0], [tx_term / 2, mul_value / 2, 0])
+                    red_line.set_color(RED)
+                    mul_lines.append(red_line)
+
+                    red_dot = Dot([th_term / 2, mul_value / 2, 0])
+                    red_dot.set_color(RED)
+                    mul_dots.append(red_dot)
+
+                    self.play(Write(red_line), Write(red_dot))
+            self.wait(1)
+            # restoring colors
+            for line_or_dot in gh2:
+                line_or_dot.set_color(BLUE)  # back in blue
+            for line_or_dot in gx1:
+                line_or_dot.set_color(GREEN)  # back in green
+
+
+            sum_term = 2 * offset + i + tw_max
+            sum_line = Line([sum_term / 2, 0, 0], [sum_term / 2, sum / 2, 0])
+            sum_line.set_color(YELLOW)
+            sum_dot = Dot([sum_term / 2, sum / 2, 0])
+            sum_dot.set_color(YELLOW)
+            print('$$$$$$')
+            print(len(mul_lines)) #TODO why is it fucking length 1?! (merge red and orange dots. remove previous k and dots. adjust new k)
+            print('$$$$$$')
+            self.play(Transform(VGroup(*mul_lines), sum_line), Transform(VGroup(*mul_dots), sum_dot), run_time=0.3)
+            # for line, dot in zip(mul_lines, mul_dots):
+            #     self.play(Transform(line, sum_line), Transform(dot, sum_dot), run_time=0.3)
+            #     self.play(FadeOut(line), FadeOut(dot))
             res.append(sum)
 
             # showing the partial result
@@ -319,6 +414,10 @@ class Conv(MovingCameraScene):
             pr.set_color(YELLOW)
             self.play(Write(pr))
             res_texts.append(pr)
+
+            # Restore the state saved
+            self.play(Restore(self.camera_frame))
+            #############################################
 
         self.wait(2)
 
