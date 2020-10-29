@@ -30,14 +30,14 @@ class Conv(GraphScene):
         self.wait(1)
 
         conv_text = TextMobject("Convolution:")
-        conv_text.move_to([-5.3, 3, 0])
+        conv_text.move_to([-4.8, 3, 0])
         self.play(Write(conv_text))
         self.wait(1)
 
         conv_formula = TextMobject("""
             {\\small $y(t)=\int\limits_{-\infty}^{\infty}x(\\tau)h(t-\\tau)d\\tau$}
         """)
-        conv_formula.move_to([-4.1, 2.2, 0])
+        conv_formula.move_to([-3.6, 2.2, 0])
         self.play(Write(conv_formula))
         self.wait(1)
 
@@ -67,7 +67,7 @@ class Conv(GraphScene):
             $$x(t)=u(t+1)-u(t-1)$$
         """)
         xt_text.set_color(GREEN)
-        xt_text.move_to([4, 3, 0])
+        xt_text.move_to([3.5, 3, 0])
         self.play(Write(xt_text))
         self.wait(1)
 
@@ -91,30 +91,32 @@ class Conv(GraphScene):
             $$h(t)=u(t)$$
         """)
         ht_text.set_color(BLUE)
-        ht_text.move_to([4, 2.3, 0])
+        ht_text.move_to([3.5, 2.3, 0])
         self.play(Write(ht_text))
         self.wait(1)
 
         # removing convolution text and putting the formula in a corner
         corner_conv_formula = TextMobject("""
-                    {\\small $y(t)=\int\limits_{-\infty}^{\infty}x(\\tau)h(t-\\tau)d\\tau$}
-                """)
-        corner_conv_formula.move_to([-4.7, 3, 0])
-        corner_conv_formula.scale(0.6)
+            {\\small $y(t)=\int\limits_{-\infty}^{\infty}x(\\tau)h(t-\\tau)d\\tau$}
+        """)
+        corner_conv_formula.move_to([-3.6, 3, 0])
+        corner_conv_formula.scale(0.8)
         self.play(FadeOut(conv_text), Transform(conv_formula, corner_conv_formula))
         self.wait(1)
 
         #drawing convolution rect
-        convolution_rect = Polygon([-6.7, 2.6, 0], [-2.7, 2.6, 0],
-                              [-2.7, 3.4, 0], [-6.7, 3.4, 0])
+        convolution_rect = Polygon([-5.6, 2.55, 0], [-1.6, 2.55, 0],
+                              [-1.6, 3.45, 0], [-5.6, 3.45, 0])
         convolution_rect.set_color(WHITE)
+        convolution_rect.scale(1.1)
         self.play(Write(convolution_rect))
         self.wait(1)
 
 
         # step 1: t -> tau
         t_to_tau = TextMobject("""$$Step \\ 1: \\; t \\rightarrow \\tau$$""")
-        t_to_tau.move_to([-5.05, 2.2, 0])
+        t_to_tau.scale(0.9)
+        t_to_tau.move_to([-3.7, 2.1, 0])
         self.play(Write(t_to_tau))
         self.wait(1)
 
@@ -122,13 +124,13 @@ class Conv(GraphScene):
             $$x(\\tau)=u(\\tau+1)-u(\\tau-1)$$
         """)
         xtau_text.set_color(GREEN)
-        xtau_text.move_to([4, 3, 0])
+        xtau_text.move_to([3.5, 3, 0])
 
         htau_text = TextMobject("""
             $$h(\\tau)=u(\\tau)$$
         """)
         htau_text.set_color(BLUE)
-        htau_text.move_to([4, 2.3, 0])
+        htau_text.move_to([3.5, 2.3, 0])
 
         label_tau = TextMobject("""$$\\tau$$""")
         label_tau.move_to([6.5, 0.4 + y0, 0])
@@ -145,7 +147,8 @@ class Conv(GraphScene):
         # step 2: h(tau) -> h(-tau)
         self.play(FadeOut(t_to_tau))
         htau_to_hmtau = TextMobject("""$Step \\ 2: \\; h(\\tau) \\rightarrow h(-\\tau)$""")
-        htau_to_hmtau.move_to([-4.3, 2.2, 0])
+        htau_to_hmtau.scale(0.9)
+        htau_to_hmtau.move_to([-3.6, 2.1, 0])
         self.play(Write(htau_to_hmtau))
         self.wait(1)
 
@@ -153,7 +156,7 @@ class Conv(GraphScene):
             $$h(-\\tau)=u(-\\tau)$$
         """)
         hmtau_text.set_color(BLUE)
-        hmtau_text.move_to([4, 2.3, 0])
+        hmtau_text.move_to([3.5, 2.3, 0])
 
         # drawing h(-tau) = u(-tau)
         hmtau = VGroup()
@@ -174,8 +177,9 @@ class Conv(GraphScene):
         # step 3: moving window and multiply
         self.play(FadeOut(htau_to_hmtau))
 
-        wind_and_multiply = TextMobject("Step 3 \\ : Moving Window")
-        wind_and_multiply.move_to([-3.7, 2.2, 0])
+        wind_and_multiply = TextMobject("Step 3 \\ : Sliding Window")
+        wind_and_multiply.scale(0.9)
+        wind_and_multiply.move_to([-3.6, 2.1, 0])
         self.play(Write(wind_and_multiply))
         self.wait(1)
 
@@ -226,11 +230,16 @@ class Conv(GraphScene):
         number_line.set_stroke(width=1)
         number_line.move_to([0, yz, 0])
         self.play(Write(number_line))
+
+        y_text = TextMobject("y(t)")
+        y_text.set_color(ORANGE)
+        t_text.scale(0.8)
+        y_text.move_to([-5.5, 0, 0])
+        self.play(Write(y_text))
         self.wait(1)
 
 
         # creating the result of convolution
-        y = VGroup()
         y1 = Line([-4, yz, 0], [-1, yz, 0])
         y1.set_color(ORANGE)
         y2 = Line([-1, 0 + yz, 0], [1, 2 + yz, 0])
@@ -238,8 +247,13 @@ class Conv(GraphScene):
         y3 = Line([1, 2 + yz, 0], [4, 2 + yz, 0])
         y3.set_color(ORANGE)
 
-        y.add(y1, y2, y3)
 
+        # dots 1
+        dots_1 = TextMobject("...")
+        dots_1.move_to([-4.32, -0.5, 0])
+        dots_1.scale(1.4)
+        dots_1.set_color(ORANGE)
+        self.play(Write(dots_1))
 
         # moving window
         self.play(
@@ -273,6 +287,13 @@ class Conv(GraphScene):
             run_time=4
         )
 
+        # dots 2
+        dots_2 = TextMobject("...")
+        dots_2.move_to([4.32, 1.5, 0])
+        dots_2.scale(1.4)
+        dots_2.set_color(ORANGE)
+        self.play(Write(dots_2))
+
         self.wait(2)
 
         # removing stuff
@@ -280,6 +301,11 @@ class Conv(GraphScene):
             FadeOut(t_label), FadeOut(xt), FadeOut(area), FadeOut(xtau_text), FadeOut(self.x_axis))
         self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula),
             FadeOut(xt_text),FadeOut(hmtau_text), FadeOut(wind_and_multiply))
+
+        t_yt = TextMobject(" t ")
+        t_yt.set_color(ORANGE)
+        t_yt.move_to([6.5, 0.4 + yz, 0])
+        self.play(Write(t_yt))
 
         self.wait(2)
 
