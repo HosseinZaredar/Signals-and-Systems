@@ -187,11 +187,46 @@ class Conv(GraphScene):
         self.play(Write(wind_and_multiply))
         self.wait(1)
 
-
-        # moving h(-tau) to the left
+        # moving window group
+        window = VGroup()
+        window.add(hmtau)
         offset = -5
-        self.play(hmtau.shift, [offset, 0, 0], run_time=1.5)
+
+        # arrow
+        arr = Arrow([0, y0 - 0.8, 0], [0, y0 + 0.2, 0])
+        self.play(Write(arr))
+        window.add(arr)
+
+        # moving window to the left
+        self.play(
+            hmtau.shift, [offset, 0, 0],
+            arr.shift, [offset, 0, 0],
+            run_time=2
+        )
         self.wait(1)
+
+
+        # ValueTracker for t
+        t_label = TexMobject("t=", )
+        t_label.scale(0.8)
+        t_label.move_to([offset - 0.8, -3.3, 0])
+
+        def t_updater(obj):
+            val = t_value.get_value()
+            obj.set_value(val)
+            obj.move_to([val + 0, -3.3, 0])
+
+        t_value = ValueTracker(offset)
+        t_text = DecimalNumber(offset)
+        t_text.add_updater(t_updater)
+        t_text.scale(0.8)
+        t_text.move_to([offset + 0, -3.3, 0])
+        
+
+        self.play(Write(t_text), Write(t_label))
+        self.wait(1)
+
+        window.add(t_label)
 
 
         # drawing an extra number line for the result of convolution
@@ -200,17 +235,6 @@ class Conv(GraphScene):
         number_line.set_stroke(width=1)
         number_line.move_to([0, yz, 0])
         self.play(Write(number_line))
-        self.wait(1)
-
-
-        # ValueTracker for t
-        t_value = ValueTracker(offset)
-        t_text = DecimalNumber(t_value.get_value()).add_updater(lambda v: v.set_value(t_value.get_value()))
-        t_label = TexMobject("t = ")
-        group = VGroup(t_text, t_label)
-        t_label.next_to(t_text, LEFT, buff=0.3, aligned_edge=t_label.get_bottom())
-
-        self.add(group.move_to([0, -3.25, 0]))
         self.wait(1)
 
 
@@ -225,12 +249,12 @@ class Conv(GraphScene):
         y4 = self.get_graph(lambda x : (2 * np.e - 2) * np.exp(-1/2 * x) - y0 + yz, color = GREEN, x_min = 4,  x_max = 5)
         y4.set_color(ORANGE)
 
-        y.add(y1, y2, y3)
+        y.add(y1, y2, y3, y4)
 
 
         # moving window
         self.play(
-            hmtau.shift, [5, 0, 0],
+            window.shift, [5, 0, 0],
             t_value.set_value, 0,
             ShowCreation(y1),
             rate_func=linear,
@@ -242,7 +266,7 @@ class Conv(GraphScene):
         area1.set_color(YELLOW)
 
         self.play(
-            hmtau.shift, [2, 0, 0],
+            window.shift, [2, 0, 0],
             t_value.set_value, 2,
             ShowCreation(area1),
             ShowCreation(y2),
@@ -264,7 +288,7 @@ class Conv(GraphScene):
         self.add(area1)
 
         self.play(
-            hmtau.shift, [2, 0, 0],
+            window.shift, [2, 0, 0],
             t_value.set_value, 4,
             ShowCreation(area2),
             ShowCreation(y3),
@@ -290,7 +314,7 @@ class Conv(GraphScene):
         self.add(area1)
 
         self.play(
-            hmtau.shift, [1, 0, 0],
+            window.shift, [1, 0, 0],
             t_value.set_value, 5,
             ShowCreation(area3),
             ShowCreation(y4),
@@ -303,11 +327,11 @@ class Conv(GraphScene):
 
         self.wait(2)
 
-        # # removing stuff
-        # self.play(FadeOut(hmtau), FadeOut(group), FadeOut(label_tau),
-        #     FadeOut(xt), FadeOut(area1), FadeOut(area2), FadeOut(xtau_text), FadeOut(self.x_axis))
-        # self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula), FadeOut(xt_text),
-        #     FadeOut(hmtau_text), FadeOut(label_t), FadeOut(wind_and_multiply))
+        # removing stuff
+        self.play(FadeOut(hmtau), FadeOut(arr), FadeOut(t_label), FadeOut(t_text), FadeOut(label_tau), FadeOut(label_t),
+            FadeOut(xt), FadeOut(area1), FadeOut(area2), FadeOut(area3), FadeOut(xtau_text), FadeOut(self.x_axis))
+        self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula), FadeOut(xt_text),
+            FadeOut(hmtau_text), FadeOut(wind_and_multiply))
 
         self.wait(2)
 
