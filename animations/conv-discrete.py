@@ -444,19 +444,3 @@ class Conv(MovingCameraScene):
             d_res.set_color(YELLOW)
             self.play(Write(d_res, run_time=0.05))
         self.wait(2)  # TODO why the fuck does n vanish?!
-
-    # def setup_axes(self):
-    #     GraphScene.setup_axes(self)
-    #
-    #     # width of edges
-    #     self.x_axis.set_stroke(width=1)
-    #     self.y_axis.set_stroke(width=1)
-    #
-    #     # color of edges
-    #     self.x_axis.set_color(RED)
-    #     self.y_axis.set_color(RED)
-    #     self.play(
-    #         *[Write(objeto)
-    #           for objeto in [self.y_axis, self.x_axis]],
-    #         run_time=2
-    #     )

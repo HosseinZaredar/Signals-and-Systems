@@ -222,8 +222,8 @@ class Conv(GraphScene):
 
         t_value = ValueTracker(offset)
         t_text = DecimalNumber(offset)
-        t_text.add_updater(t_updater)
         t_text.scale(0.8)
+        t_text.add_updater(t_updater)
         t_text.move_to([offset + 0, -3.3, 0])
         
 
@@ -242,8 +242,8 @@ class Conv(GraphScene):
 
         y_text = TextMobject("y(t)")
         y_text.set_color(ORANGE)
-        t_text.scale(0.8)
-        y_text.move_to([-6, 0, 0])
+        y_text.scale(0.8)
+        y_text.move_to([-6, -0.1, 0])
         self.play(Write(y_text))
         self.wait(1)
 

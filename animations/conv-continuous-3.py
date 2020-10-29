@@ -42,29 +42,31 @@ class Conv(GraphScene):
         self.wait(1)
 
 
-        # drawing x(x) = rect = u(t + 2) - u(t - 2)
-        xt = VGroup()
-        x1 = Line([-8, y0, 0], [-1, y0, 0])
-        x1.set_color(GREEN)
-        x2 = Line([-1, y0, 0], [-1, 1 + y0, 0])
-        x2.set_color(GREEN)
-        x3 = Line([-1, 1 + y0, 0], [1, 1 + y0, 0])
-        x3.set_color(GREEN)
-        x4 = Line([1, 1 + y0, 0], [1, y0, 0])
-        x4.set_color(GREEN)
-        x5 = Line([1, y0, 0], [8, y0, 0])
-        x5.set_color(GREEN)
+        # drawing x(x) = sin(t)
 
-        xt.add(x1, x2, x3, x4, x5)
-        self.play(ShowCreation(x1, run_time=0.5))
-        self.play(ShowCreation(x2, run_time=0.5))
-        self.play(ShowCreation(x3, run_time=0.5))
-        self.play(ShowCreation(x4, run_time=0.5))
-        self.play(ShowCreation(x5, run_time=0.5))
+        # dots 1
+        dots_1 = TextMobject("...")
+        dots_1.move_to([-5.3, y0 + 0.85, 0])
+        dots_1.rotate(0.35)
+        dots_1.scale(1.3)
+        dots_1.set_color(GREEN)
+        self.play(Write(dots_1))
+
+        xt = self.get_graph(lambda x : np.sin(x), color = GREEN, x_min = -5,  x_max = 5)
+        self.play(ShowCreation(xt, run_time=2))
+        
+        # dots 2
+        dots_2 = TextMobject("...")
+        dots_2.move_to([5.3, y0 - 0.85, 0])
+        dots_2.rotate(0.35)
+        dots_2.scale(1.3)
+        dots_2.set_color(GREEN)
+        self.play(Write(dots_2))
+
         self.wait(1)
 
         xt_text = TextMobject("""
-            $$x(t)=u(t+1)-u(t-1)$$
+            $$x(t)=sin(t)$$
         """)
         xt_text.set_color(GREEN)
         xt_text.move_to([3.5, 3, 0])
@@ -72,23 +74,14 @@ class Conv(GraphScene):
         self.wait(1)
 
 
-        # drawing h(t) = u(t)
-        ht = VGroup()
-        h1 = Line([-12, y0, 0], [0, y0, 0])
-        h1.set_color(BLUE)
-        h2 = Line([0, y0, 0], [0, 1 + y0, 0])
-        h2.set_color(BLUE)
-        h3 = Line([0, 1 + y0, 0], [12, 1 + y0, 0])
-        h3.set_color(BLUE)
-
-        ht.add(h1, h2, h3)
-        self.play(ShowCreation(h1, run_time=0.5))
-        self.play(ShowCreation(h2, run_time=0.5))
-        self.play(ShowCreation(h3, run_time=0.5))
+        # drawing h(t) = delta(t)
+        ht = Arrow([0, y0 - 0.25, 0], [0, 1.25 + y0, 0])
+        ht.set_color(BLUE)
+        self.play(ShowCreation(ht, run_time=0.5))
         self.wait(1)
 
         ht_text = TextMobject("""
-            $$h(t)=u(t)$$
+            $$h(t)=\\delta (t)$$
         """)
         ht_text.set_color(BLUE)
         ht_text.move_to([3.5, 2.3, 0])
@@ -121,13 +114,13 @@ class Conv(GraphScene):
         self.wait(1)
 
         xtau_text = TextMobject("""
-            $$x(\\tau)=u(\\tau+1)-u(\\tau-1)$$
+            $$x(\\tau)=sin(\\tau)$$
         """)
         xtau_text.set_color(GREEN)
         xtau_text.move_to([3.5, 3, 0])
 
         htau_text = TextMobject("""
-            $$h(\\tau)=u(\\tau)$$
+            $$h(\\tau)=\\delta (\\tau)$$
         """)
         htau_text.set_color(BLUE)
         htau_text.move_to([3.5, 2.3, 0])
@@ -153,24 +146,17 @@ class Conv(GraphScene):
         self.wait(1)
 
         hmtau_text = TextMobject("""
-            $$h(-\\tau)=u(-\\tau)$$
+            $$h(-\\tau)=\\delta (-\\tau)$$
         """)
         hmtau_text.set_color(BLUE)
         hmtau_text.move_to([3.5, 2.3, 0])
 
         # drawing h(-tau) = u(-tau)
-        hmtau = VGroup()
-        hm1 = Line([-12, 1 + y0, 0], [0, 1 + y0, 0])
-        hm1.set_color(BLUE)
-        hm2 = Line([0, 1 + y0, 0], [0, y0, 0])
-        hm2.set_color(BLUE)
-        hm3 = Line([0, y0, 0], [12, y0, 0])
-        hm3.set_color(BLUE)
+        hmtau = Arrow([0, y0 - 0.25, 0], [0, 1.25 + y0, 0])
+        hmtau.set_color(BLUE)
+        hmtau.flip()
 
-        hmtau.add(hm1, hm2, hm3)
-        self.play(ReplacementTransform(h1, hm3), ReplacementTransform(h3, hm1), Write(hm2),
-            ReplacementTransform(htau_text, hmtau_text))
-        self.remove(h2)
+        self.play(ReplacementTransform(ht, hmtau), ReplacementTransform(htau_text, hmtau_text))
         self.wait(1)
 
 
@@ -186,21 +172,22 @@ class Conv(GraphScene):
         # moving window group
         window = VGroup()
         window.add(hmtau)
-        offset = -4
+        offset = -5
 
         # arrow
         arr = Arrow([0, y0 - 0.8, 0], [0, y0 + 0.2, 0])
         self.play(Write(arr))
         window.add(arr)
 
-       # moving window to the left
+        # moving window to the left
         self.play(
             hmtau.shift, [offset, 0, 0],
             arr.shift, [offset, 0, 0],
             run_time=2
         )
         self.wait(1)
-        
+
+
         # ValueTracker for t
         t_label = TexMobject("t=", )
         t_label.scale(0.8)
@@ -234,73 +221,47 @@ class Conv(GraphScene):
         y_text = TextMobject("y(t)")
         y_text.set_color(ORANGE)
         y_text.scale(0.8)
-        y_text.move_to([-5.5, -0.1, 0])
+        y_text.move_to([-6, -0.1, 0])
         self.play(Write(y_text))
         self.wait(1)
 
 
         # creating the result of convolution
-        y1 = Line([-4, yz, 0], [-1, yz, 0])
-        y1.set_color(ORANGE)
-        y2 = Line([-1, 0 + yz, 0], [1, 2 + yz, 0])
-        y2.set_color(ORANGE)
-        y3 = Line([1, 2 + yz, 0], [4, 2 + yz, 0])
-        y3.set_color(ORANGE)
+        yt = self.get_graph(lambda x : np.sin(x) - y0 + yz, color = ORANGE, x_min = -5,  x_max = 5)
 
-
-        # dots 1
-        dots_1 = TextMobject("...")
-        dots_1.move_to([-4.32, -0.5, 0])
-        dots_1.scale(1.4)
-        dots_1.set_color(ORANGE)
-        self.play(Write(dots_1))
+        # dots 3
+        dots_3 = TextMobject("...")
+        dots_3.move_to([-5.3, yz + 0.85, 0])
+        dots_3.rotate(0.35)
+        dots_3.scale(1.3)
+        dots_3.set_color(ORANGE)
+        self.play(Write(dots_3))
 
         # moving window
         self.play(
-            window.shift, [3, 0, 0],
-            t_value.set_value, -1,
-            ShowCreation(y1),
+            window.shift, [10, 0, 0],
+            t_value.set_value, 5,
+            ShowCreation(yt),
             rate_func=linear,
-            run_time=4
+            run_time=10
         )
 
-
-        # handing the area
-        one = self.get_graph(lambda x: 1, x_min=-1, x_max=1)
-        area = self.color_area(one, -1, 1)
-        area.set_color(YELLOW)
-
-        self.play(
-            window.shift, [2, 0, 0],
-            t_value.set_value, 1,
-            ShowCreation(area),
-            ShowCreation(y2),
-            rate_func=linear,
-            run_time=4
-        )
-
-        self.play(
-            window.shift, [3, 0, 0],
-            t_value.set_value, 4,
-            ShowCreation(y3),
-            rate_func=linear,
-            run_time=4
-        )
-
-        # dots 2
-        dots_2 = TextMobject("...")
-        dots_2.move_to([4.32, 1.5, 0])
-        dots_2.scale(1.4)
-        dots_2.set_color(ORANGE)
-        self.play(Write(dots_2))
+        # dots 4
+        dots_4 = TextMobject("...")
+        dots_4.move_to([5.3, yz - 0.85, 0])
+        dots_4.rotate(0.35)
+        dots_4.scale(1.3)
+        dots_4.set_color(ORANGE)
+        self.play(Write(dots_4))
 
         self.wait(2)
 
         # removing stuff
-        self.play(FadeOut(hmtau), FadeOut(label_tau), FadeOut(label_t), FadeOut(arr), FadeOut(t_text),
-            FadeOut(t_label), FadeOut(xt), FadeOut(area), FadeOut(xtau_text), FadeOut(self.x_axis))
-        self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula),
-            FadeOut(xt_text),FadeOut(hmtau_text), FadeOut(wind_and_multiply))
+        self.play(FadeOut(hmtau), FadeOut(arr), FadeOut(t_label), FadeOut(t_text), FadeOut(label_tau), FadeOut(label_t),
+            FadeOut(xt), FadeOut(xtau_text), FadeOut(self.x_axis), FadeOut(dots_1), FadeOut(dots_2))
+        self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula), FadeOut(xt_text),
+            FadeOut(hmtau_text), FadeOut(wind_and_multiply))
+
 
         t_yt = TextMobject(" t ")
         t_yt.set_color(ORANGE)
