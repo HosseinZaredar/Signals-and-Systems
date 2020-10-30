@@ -230,9 +230,21 @@ class Conv(GraphScene):
         """)
         guide_3.scale(0.75)
         guide_3.move_to([-4.7, -0.1, 0])
+
         
         self.play(Write(wind_and_multiply))
         self.wait(0.5)
+
+        htmtau_text = TextMobject("""
+            $$h(t-\\tau)=u(t-\\tau)-u(t-\\tau+2)$$
+        """)
+        htmtau_text.set_color(BLUE)
+        htmtau_text.scale(0.9)
+        htmtau_text.move_to([3.5, 2.3, 0])
+        self.play(ReplacementTransform(hmtau_text, htmtau_text))
+        self.wait(0.5)
+
+
         self.play(Write(guide_1))
         self.play(Write(guide_2))
         self.play(Write(guide_3))
@@ -400,7 +412,7 @@ class Conv(GraphScene):
         self.play(FadeOut(hmtau), FadeOut(arr), FadeOut(t_label), FadeOut(t_text), FadeOut(label_tau), FadeOut(label_t),
             FadeOut(xt), FadeOut(area1), FadeOut(area2), FadeOut(area3), FadeOut(xtau_text), FadeOut(self.x_axis))
         self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(xt_text),
-            FadeOut(hmtau_text), FadeOut(wind_and_multiply))
+            FadeOut(htmtau_text), FadeOut(wind_and_multiply))
 
 
         t_yt = TextMobject(" t ")
