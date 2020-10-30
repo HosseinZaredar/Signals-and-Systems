@@ -101,7 +101,6 @@ class Conv(GraphScene):
         corner_conv_formula.move_to([-3.6, 3, 0])
         corner_conv_formula.scale(0.8)
         self.play(FadeOut(conv_text), Transform(conv_formula, corner_conv_formula))
-        self.wait(1)
 
         #drawing convolution rect
         convolution_rect = Polygon([-5.6, 2.55, 0], [-1.6, 2.55, 0],
@@ -188,8 +187,33 @@ class Conv(GraphScene):
         wind_and_multiply = TextMobject("Step 3 \\ : Sliding Window")
         wind_and_multiply.scale(0.9)
         wind_and_multiply.move_to([-3.6, 2.1, 0])
+
+        guide_1 = TextMobject("""
+            for all t: take the integral of 
+        """)
+        guide_1.scale(0.75)
+        guide_1.move_to([-3.8, 0.6, 0])
+
+        guide_2 = TextMobject("""
+            the multiplication of the signals,
+        """)
+        guide_2.scale(0.75)
+        guide_2.move_to([-3.5, 0.25, 0])
+
+        guide_3 = TextMobject("""
+            from $-\\infty$ to $+\\infty$. 
+        """)
+        guide_3.scale(0.75)
+        guide_3.move_to([-4.7, -0.1, 0])
+        
         self.play(Write(wind_and_multiply))
-        self.wait(1)
+        self.wait(0.5)
+        self.play(Write(guide_1))
+        self.play(Write(guide_2))
+        self.play(Write(guide_3))
+        self.wait(2)
+
+        self.play(FadeOut(guide_1), FadeOut(guide_2), FadeOut(guide_3))
 
         # moving window group
         window = VGroup()
