@@ -30,14 +30,17 @@ class Conv(GraphScene):
         self.wait(1)
 
         conv_text = TextMobject("Convolution:")
-        conv_text.move_to([-4.8, 3, 0])
+        conv_text.move_to([-5.35, 3, 0])
         self.play(Write(conv_text))
         self.wait(1)
 
-        conv_formula = TextMobject("""
-            {\\small $y(t)=\int\limits_{-\infty}^{\infty}x(\\tau)h(t-\\tau)d\\tau$}
-        """)
-        conv_formula.move_to([-3.6, 2.2, 0])
+        conv_formula = TextMobject(
+            "{\\small $y(t)=$}",
+            "{\\small $\\ x(t)*h(t)=$}",
+            "{\\small $\int\limits_{-\infty}^{\infty}x(\\tau)h(t-\\tau)d\\tau$}"
+        )
+        conv_formula.scale(0.85)
+        conv_formula.move_to([-3.5, 2.2, 0])
         self.play(Write(conv_formula))
         self.wait(1)
 
@@ -95,19 +98,19 @@ class Conv(GraphScene):
         self.wait(1)
 
         # removing convolution text and putting the formula in a corner
-        corner_conv_formula = TextMobject("""
-            {\\small $y(t)=\int\limits_{-\infty}^{\infty}x(\\tau)h(t-\\tau)d\\tau$}
-        """)
-        corner_conv_formula.move_to([-3.6, 3, 0])
-        corner_conv_formula.scale(0.8)
-        self.play(FadeOut(conv_text), Transform(conv_formula, corner_conv_formula))
+        corner_conv_formula = TextMobject(
+            "{\\small $y(t)=$}",
+            "{\\small $\int\limits_{-\infty}^{\infty}x(\\tau)h(t-\\tau)d\\tau$}"
+        )
 
-        #drawing convolution rect
-        convolution_rect = Polygon([-5.6, 2.55, 0], [-1.6, 2.55, 0],
-                              [-1.6, 3.45, 0], [-5.6, 3.45, 0])
-        convolution_rect.set_color(WHITE)
-        convolution_rect.scale(1.1)
-        self.play(Write(convolution_rect))
+        corner_conv_formula.move_to([-3.5, 3, 0])
+        corner_conv_formula.scale(0.8)
+        self.play(
+            FadeOut(conv_text),
+            FadeOut(conv_formula[1]),
+            ReplacementTransform(conv_formula[0], corner_conv_formula[0]),
+            ReplacementTransform(conv_formula[2], corner_conv_formula[1])
+        )
         self.wait(1)
 
 
@@ -146,7 +149,7 @@ class Conv(GraphScene):
         self.play(FadeOut(t_to_tau))
         htau_to_hmtau = TextMobject("""$Step \\ 2: \\; h(\\tau) \\rightarrow h(-\\tau)$""")
         htau_to_hmtau.scale(0.9)
-        htau_to_hmtau.move_to([-3.6, 2.1, 0])
+        htau_to_hmtau.move_to([-3.5, 2.1, 0])
         self.play(Write(htau_to_hmtau))
         self.wait(1)
 
@@ -186,7 +189,7 @@ class Conv(GraphScene):
 
         wind_and_multiply = TextMobject("Step 3 \\ : Sliding Window")
         wind_and_multiply.scale(0.9)
-        wind_and_multiply.move_to([-3.6, 2.1, 0])
+        wind_and_multiply.move_to([-3.5, 2.1, 0])
 
         guide_1 = TextMobject("""
             for all t: take the integral of 
