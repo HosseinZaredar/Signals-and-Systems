@@ -18,6 +18,20 @@ class Conv(GraphScene):
     }
     
     def construct(self):
+
+        # Introduction
+        title = TextMobject("Continuous Convolution \#1")
+        title.scale(2)
+        creators = TextMobject("Made by \n Hossein Zaredar \& Matin Tavakoli")
+        creators.scale(0.4)
+        creators.move_to([5, -3.7, 0])
+        self.play(Write(title), run_time=1.2)
+        self.wait(2)
+        self.play(Write(creators), run_time=0.7)
+        self.wait(2)
+        self.play(FadeOut(title))
+        self.wait(2)
+
         self.setup_axes()
 
         # y0
@@ -29,8 +43,8 @@ class Conv(GraphScene):
         self.play(Write(label_t), run_time=1)
         self.wait(1)
 
-        conv_text = TextMobject("Convolution:")
-        conv_text.move_to([-5.35, 3, 0])
+        conv_text = TextMobject("Continuous Convolution:")
+        conv_text.move_to([-4, 3, 0])
         self.play(Write(conv_text))
         self.wait(0.2)
 

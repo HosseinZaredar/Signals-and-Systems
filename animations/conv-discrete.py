@@ -7,6 +7,19 @@ class Conv(MovingCameraScene):
 
     def construct(self):
 
+        # Introduction
+        title = TextMobject("Discrete Convolution")
+        title.scale(2.5)
+        creators = TextMobject("Made by \n Hossein Zaredar \& Matin Tavakoli")
+        creators.scale(0.4)
+        creators.move_to([5, -3.7, 0])
+        self.play(Write(title), run_time=1.2)
+        self.wait(2)
+        self.play(Write(creators), run_time=0.7)
+        self.wait(2)
+        self.play(FadeOut(title))
+        self.wait(2)
+
         y0 = -0.5
 
         # drawing axes
@@ -21,20 +34,19 @@ class Conv(MovingCameraScene):
         y_axis.rotate(PI / 2)
         self.play(Write(x_axis), Write(y_axis))
 
-
         label_n = TextMobject(" n ")
         label_n.move_to([6.5, 0.4 + y0, 0])
         label_n.set_color(RED)
         self.play(Write(label_n), run_time=1)
         self.wait(1)
 
-        conv_text = TextMobject("Convolution:")
-        conv_text.move_to([-5.35, 3, 0])
+        conv_text = TextMobject("Discrete Convolution:")
+        conv_text.move_to([-4.35, 3, 0])
         self.play(Write(conv_text))
         self.wait(0.2)
 
         conv_formula = TextMobject(
-            "{\\small $y[n]=$}", 
+            "{\\small $y[n]=$}",
             "{\\small $\\ x[n]*h[n]=$}",
             "{\\small $\sum\limits_{k=-\infty}^{+\infty}x[k]h[n-k]$}"
         )
@@ -115,7 +127,7 @@ class Conv(MovingCameraScene):
 
         # removing convolution text and putting the formula in a corner
         corner_conv_formula = TextMobject(
-            "{\\small $y[n]=$}", 
+            "{\\small $y[n]=$}",
             "{\\small $\sum\limits_{k=-\infty}^{+\infty}x[k]h[n-k]$}"
         )
         corner_conv_formula.move_to([-3.5, 3, 0])
@@ -251,7 +263,6 @@ class Conv(MovingCameraScene):
         offset = (-2 + tx[0] + th[0]) / 2
         right_offset = (2 + tx[len(tx) - 1] + th[len(th) - 1]) / 2
 
-
         # result of convolution
         res = [0.0]
 
@@ -283,12 +294,10 @@ class Conv(MovingCameraScene):
             )
             self.wait(0.5)
 
-
             if 1 < i < 6:
-
                 # zooming camera
                 self.camera_frame.save_state()
-                location = [gh2.get_x(), gh2.get_y() - 1/12, 0] 
+                location = [gh2.get_x(), gh2.get_y() - 1 / 12, 0]
                 self.play(
                     self.camera_frame.set_width, window.get_width() * 2.75,
                     self.camera_frame.move_to, location
@@ -321,7 +330,8 @@ class Conv(MovingCameraScene):
                     h_term.shift([0, y0, 0])
                     h_term.set_color(BLUE)
 
-                    mul_symbol.move_to([offset + tw_min / 2 + i / 2 - 1 / 2 + 1 / 2 + j / 2, yw_min / 2 + 1 / 12 + 1 / 5, 0])
+                    mul_symbol.move_to(
+                        [offset + tw_min / 2 + i / 2 - 1 / 2 + 1 / 2 + j / 2, yw_min / 2 + 1 / 12 + 1 / 5, 0])
                     mul_symbol.shift([0, y0, 0])
                     mul_symbol.scale(0.25)
 
@@ -351,8 +361,6 @@ class Conv(MovingCameraScene):
 
                     self.wait(0.5)
 
-
-            
             res.append(sum)
 
             if 1 < i < 6:
@@ -360,10 +368,10 @@ class Conv(MovingCameraScene):
                 plus_symbols = VGroup()
                 for j in range(len(th) - 1):
                     plus_symbol = TextMobject('+')
-                    plus_symbol.move_to([offset + tw_min/2 + i/2 + j/2 + 1/4, yw_min/2 + 1/12 + 1/5, 0])
+                    plus_symbol.move_to([offset + tw_min / 2 + i / 2 + j / 2 + 1 / 4, yw_min / 2 + 1 / 12 + 1 / 5, 0])
                     plus_symbol.scale(0.35)
                     plus_symbols.add(plus_symbol)
-                
+
                 plus_symbols.shift([0, y0, 0])
                 self.play(Write(plus_symbols))
                 self.wait(0.5)
@@ -371,11 +379,10 @@ class Conv(MovingCameraScene):
                 calculations = VGroup(h_terms, mul_symbols, x_terms, plus_symbols)
 
                 sum_term = TextMobject('{:.2f}'.format(sum))
-                sum_term.move_to([offset + tw_min/2 + i/2 + float(len(th))/4 - 1/4, yw_min/2, 0])
+                sum_term.move_to([offset + tw_min / 2 + i / 2 + float(len(th)) / 4 - 1 / 4, yw_min / 2, 0])
                 sum_term.shift([0, y0, 0])
                 sum_term.scale(0.4)
                 sum_term.set_color(YELLOW)
-
 
                 self.play(ReplacementTransform(calculations, sum_term))
                 self.wait(0.5)
@@ -383,7 +390,7 @@ class Conv(MovingCameraScene):
                 # Restore the state saved
                 self.play(
                     Restore(self.camera_frame),
-                    sum_term.scale, 15/8,
+                    sum_term.scale, 15 / 8,
                 )
 
                 self.wait(0.5)
@@ -397,7 +404,7 @@ class Conv(MovingCameraScene):
                 res_texts.append(partial_mul)
 
 
-            else: 
+            else:
 
                 partial_mul = TextMobject('{:.2f}'.format(sum))
                 partial_mul.move_to([offset + i / 2, -2.75, 0])
@@ -419,9 +426,8 @@ class Conv(MovingCameraScene):
         # removing stuff
         self.play()
         self.play(FadeOut(window), FadeOut(gx1), FadeOut(next_h_nmk), FadeOut(h_dmk),
-        FadeOut(xk_text),FadeOut(xn_text), FadeOut(next_n_counter), FadeOut(n_counter))
+                  FadeOut(xk_text), FadeOut(xn_text), FadeOut(next_n_counter), FadeOut(n_counter))
         self.play(FadeOut(wind_and_multiply), FadeOut(corner_conv_formula), FadeOut(convolution_rect))
-
 
         self.play(
             y_text.shift, [0, 3.15, 0],
@@ -440,4 +446,3 @@ class Conv(MovingCameraScene):
             d_res.set_color(YELLOW)
             self.play(Write(d_res, run_time=0.05))
         self.wait(3)
-
