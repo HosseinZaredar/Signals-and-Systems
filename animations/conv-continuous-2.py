@@ -32,7 +32,7 @@ class Conv(GraphScene):
         conv_text = TextMobject("Convolution:")
         conv_text.move_to([-5.35, 3, 0])
         self.play(Write(conv_text))
-        self.wait(1)
+        self.wait(0.2)
 
         conv_formula = TextMobject(
             "{\\small $y(t)=$}",
@@ -111,6 +111,14 @@ class Conv(GraphScene):
             ReplacementTransform(conv_formula[0], corner_conv_formula[0]),
             ReplacementTransform(conv_formula[2], corner_conv_formula[1])
         )
+        self.wait(0.2)
+
+        #drawing convolution rect
+        convolution_rect = Polygon([-5.45, 2.55, 0], [-1.6, 2.55, 0],
+                              [-1.6, 3.45, 0], [-5.45, 3.45, 0])
+        convolution_rect.set_color(WHITE)
+        convolution_rect.scale(1.1)
+        self.play(Write(convolution_rect))
         self.wait(1)
 
 
@@ -154,7 +162,7 @@ class Conv(GraphScene):
         self.wait(1)
 
         hmtau_text = TextMobject("""
-            $$h(-\\tau)=u(-\\tau)$$
+            $$h(-\\tau)=u(-\\tau)-u(-\\tau+2)$$
         """)
         hmtau_text.set_color(BLUE)
         hmtau_text.move_to([3.5, 2.3, 0])
@@ -377,7 +385,7 @@ class Conv(GraphScene):
         # removing stuff
         self.play(FadeOut(hmtau), FadeOut(arr), FadeOut(t_label), FadeOut(t_text), FadeOut(label_tau), FadeOut(label_t),
             FadeOut(xt), FadeOut(area1), FadeOut(area2), FadeOut(area3), FadeOut(xtau_text), FadeOut(self.x_axis))
-        self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(conv_formula), FadeOut(xt_text),
+        self.play(FadeOut(convolution_rect), FadeOut(corner_conv_formula), FadeOut(xt_text),
             FadeOut(hmtau_text), FadeOut(wind_and_multiply))
 
 
@@ -386,7 +394,7 @@ class Conv(GraphScene):
         t_yt.move_to([6.5, 0.4 + yz, 0])
         self.play(Write(t_yt))
 
-        self.wait(2)
+        self.wait(3)
 
 
     def setup_axes(self):

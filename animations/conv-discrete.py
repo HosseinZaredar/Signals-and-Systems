@@ -31,7 +31,7 @@ class Conv(MovingCameraScene):
         conv_text = TextMobject("Convolution:")
         conv_text.move_to([-5.35, 3, 0])
         self.play(Write(conv_text))
-        self.wait(1)
+        self.wait(0.2)
 
         conv_formula = TextMobject(
             "{\\small $y[n]=$}", 
@@ -126,7 +126,7 @@ class Conv(MovingCameraScene):
             ReplacementTransform(conv_formula[0], corner_conv_formula[0]),
             ReplacementTransform(conv_formula[2], corner_conv_formula[1])
         )
-        self.wait(1)
+        self.wait(0.2)
 
         # drawing convolution rect
         convolution_rect = Polygon([-5.5, 2.55, 0], [-1.5, 2.55, 0],
@@ -220,13 +220,6 @@ class Conv(MovingCameraScene):
         self.play(Write(window_rect))
         self.wait(1)
 
-        y_text = TextMobject("y[n]")
-        y_text.set_color(YELLOW)
-        y_text.scale(0.8)
-        y_text.move_to([-6, -2.75, 0])
-        self.play(Write(y_text))
-        self.wait(1)
-
         # writing h[%d - k]
         h_dmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset))
         h_dmk.set_color(BLUE)
@@ -239,6 +232,14 @@ class Conv(MovingCameraScene):
         n_counter.scale(0.9)
         self.play(Write(n_counter), ReplacementTransform(h_nmk, h_dmk))
         self.wait(1)
+
+        # writing y[n]
+        y_text = TextMobject("y[n]")
+        y_text.set_color(YELLOW)
+        y_text.scale(0.8)
+        y_text.move_to([-6, -2.75, 0])
+        self.play(Write(y_text))
+        self.wait(0.5)
 
         # grouping the window and h[n - k]
         window = VGroup(gh2, window_rect)
@@ -263,7 +264,7 @@ class Conv(MovingCameraScene):
         partial_mul.scale(0.75)
         partial_mul.rotate(-PI / 2)
         partial_mul.set_color(YELLOW)
-        self.play(Write(partial_mul))
+        self.play(FadeInFrom(partial_mul, UP))
         res_texts.append(partial_mul)
 
         for i in range(1, int(2 * (right_offset - offset)) + 1):
@@ -330,7 +331,7 @@ class Conv(MovingCameraScene):
                     x_term.set_color(GREEN)
 
                     self.play(Write(h_term), Write(mul_symbol), Write(x_term))
-                    self.wait(0.25)
+                    self.wait(0.2)
                     h_terms.add(h_term)
                     mul_symbols.add(mul_symbol)
                     x_terms.add(x_term)
