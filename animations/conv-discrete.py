@@ -251,12 +251,12 @@ class Conv(MovingCameraScene):
         res_texts = []
 
         # showing the first 0.00
-        pr = TextMobject('0.00')
-        pr.move_to([offset, -2.5, 0])
-        pr.rotate(-PI / 2)
-        pr.set_color(YELLOW)
-        self.play(Write(pr))
-        res_texts.append(pr)
+        partial_mul = TextMobject('0.00')
+        partial_mul.move_to([offset, -2.5, 0])
+        partial_mul.rotate(-PI / 2)
+        partial_mul.set_color(YELLOW)
+        self.play(Write(partial_mul))
+        res_texts.append(partial_mul)
 
         for i in range(1, int(2 * (right_offset - offset)) + 1):
             next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset + i))
@@ -281,7 +281,7 @@ class Conv(MovingCameraScene):
             # Animation of the camera
             self.play(
                 # Set the size with the width of a object
-                self.camera_frame.set_width, window.get_width() * 3,
+                self.camera_frame.set_width, window.get_width() * 2.75,
                 # Move the camera to the object
                 self.camera_frame.move_to, gh2
             )
@@ -296,31 +296,43 @@ class Conv(MovingCameraScene):
             # self.play(Write(small_n_counter))
             # self.wait(1)
 
-            # writing k counter
-            k_counter = TextMobject("{k = \\footnotesize$ %d $}" % (tw_min))
-            k_counter.move_to([offset + tw_min / 2 + 9 / 20, yw_max / 2 + 1 / 6, 0])
-            k_counter.set_color(PINK)
-            k_counter.scale(0.2)
-            self.play(Write(k_counter))
-            self.wait(1)
-
             # doing the partial convolution (camera zoom: on)
             sum = 0
             th_start = 1  # th start index
             tx_start = 0  # tx start index
+
+            # testing
+            h_terms = []
+            mul_symbols = []
+            x_terms = []
+
             for j in range(len(th)):
+                # calculate partial multiple
+                partial_mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
+                sum += partial_mul_value
 
-                mul_lines = []
-                mul_dots = []
+                # write partial multiple
+                h_term = TextMobject('{:.2f}'.format(yh[len(th) - j - 1]))
+                mul_symbol = TextMobject('×')
+                x_term = TextMobject('{:.2f}'.format(yx[i + tw_min + j]))
 
-                sum += yh[len(th) - j - 1] * yx[i + tw_min + j]
-                # writing next k counter
-                next_k_counter = TextMobject("{k = \\footnotesize$ %d $}" % (tw_min + j))
-                next_k_counter.move_to([offset + tw_min / 2 + j / 2 + 9 / 20, yw_max / 2 + 1 / 6, 0])
-                next_k_counter.set_color(PINK)
-                next_k_counter.scale(0.2)
-                self.play(Transform(k_counter, next_k_counter))
+                h_term.move_to([offset + tw_min / 2 + i / 2 - 1 / 2 + 1 / 2 + j / 2, yw_min / 2 + 1 / 6 + 1 / 5, 0])
+                h_term.scale(0.25)
+                h_term.set_color(BLUE)
+
+                mul_symbol.move_to([offset + tw_min / 2 + i / 2 - 1 / 2 + 1 / 2 + j / 2, yw_min / 2 + 1 / 12 + 1 / 5, 0])
+                mul_symbol.scale(0.25)
+
+                x_term.move_to([offset + tw_min / 2 + i / 2 - 1 / 2 + 1 / 2 + j / 2, yw_min / 2 + 1 / 5, 0])
+                x_term.scale(0.25)
+                x_term.set_color(GREEN)
+
+
+                self.play(Write(h_term), Write(mul_symbol), Write(x_term))
                 self.wait(1)
+                h_terms.append(h_term)
+                mul_symbols.append(mul_symbol)
+                x_terms.append(x_term)
 
                 print('th[-th_start], offset, i: {}, {}, {}'.format(th[-th_start], offset, i))
                 print('tw_min {}'.format(tw_min))
@@ -331,92 +343,95 @@ class Conv(MovingCameraScene):
                 print(th_term, tx_term)
                 print('---------------')
                 if (th_term == tx_term):
-                    gh2[- th_start].set_color(PURPLE)  # dot
-                    gh2[- len(gh2) // 2 - th_start].set_color(PURPLE)  # line
-                    gx1[tx_start].set_color(PURPLE)  # dot
-                    gx1[tx_start + len(gx1) // 2].set_color(PURPLE)  # line
+                    # gh2[- th_start].set_color(PURPLE)  # dot
+                    # gh2[- len(gh2) // 2 - th_start].set_color(PURPLE)  # line
+                    # gx1[tx_start].set_color(PURPLE)  # dot
+                    # gx1[tx_start + len(gx1) // 2].set_color(PURPLE)  # line
                     th_start = th_start + 1
                     tx_start = tx_start + 1
 
-                    # writing partial multiple
-                    mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
+                    # orange_line = Line([th_term / 2, 0, 0], [th_term / 2, mul_value / 2, 0])
+                    # orange_line.set_color(ORANGE)
+                    # orange_dot = Dot([th_term / 2, mul_value / 2, 0])
+                    # orange_dot.set_color(ORANGE)
 
-                    orange_line = Line([th_term / 2, 0, 0], [th_term / 2, mul_value / 2, 0])
-                    orange_line.set_color(ORANGE)
-                    mul_lines.append(orange_line)
-
-                    orange_dot = Dot([th_term / 2, mul_value / 2, 0])
-                    orange_dot.set_color(ORANGE)
-                    mul_dots.append(orange_dot)
-
-                    self.play(Write(orange_line), Write(orange_dot))
+                    # self.play(Write(orange_line), Write(orange_dot))
 
                 elif (th_term < tx_term):
-                    gh2[- th_start].set_color(WHITE)  # dot
-                    gh2[- len(gh2) // 2 - th_start].set_color(WHITE)  # line
+                    # gh2[- th_start].set_color(WHITE)  # dot
+                    # gh2[- len(gh2) // 2 - th_start].set_color(WHITE)  # line
                     th_start = th_start + 1
 
-                    # writing partial multiple
-                    mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
+                    # red_line = Line([th_term / 2, 0, 0], [th_term / 2, mul_value / 2, 0])
+                    # red_line.set_color(RED)
+                    # red_dot = Dot([th_term / 2, mul_value / 2, 0])
+                    # red_dot.set_color(RED)
 
-                    red_line = Line([th_term / 2, 0, 0], [th_term / 2, mul_value / 2, 0])
-                    red_line.set_color(RED)
-                    mul_lines.append(red_line)
-
-                    red_dot = Dot([th_term / 2, mul_value / 2, 0])
-                    red_dot.set_color(RED)
-                    mul_dots.append(red_dot)
-
-                    self.play(Write(red_line), Write(red_dot))
+                    # self.play(Write(red_line), Write(red_dot))
                 else:
-                    gx1[tx_start].set_color(WHITE)  # dot
-                    gx1[tx_start + len(gx1) // 2].set_color(WHITE)  # line
+                    # gx1[tx_start].set_color(WHITE)  # dot
+                    # gx1[tx_start + len(gx1) // 2].set_color(WHITE)  # line
                     tx_start = tx_start + 1
 
-                    # writing partial multiple
-                    mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
+                    # red_line = Line([tx_term / 2, 0, 0], [tx_term / 2, mul_value / 2, 0])
+                    # red_line.set_color(RED)
+                    # red_dot = Dot([th_term / 2, mul_value / 2, 0])
+                    # red_dot.set_color(RED)
 
-                    red_line = Line([tx_term / 2, 0, 0], [tx_term / 2, mul_value / 2, 0])
-                    red_line.set_color(RED)
-                    mul_lines.append(red_line)
+                    # self.play(Write(red_line), Write(red_dot))
 
-                    red_dot = Dot([th_term / 2, mul_value / 2, 0])
-                    red_dot.set_color(RED)
-                    mul_dots.append(red_dot)
-
-                    self.play(Write(red_line), Write(red_dot))
+            # # restoring colors
+            # for line_or_dot in gh2:
+            #     line_or_dot.set_color(BLUE)  # back in blue
+            # for line_or_dot in gx1:
+            #     line_or_dot.set_color(GREEN)  # back in green
             self.wait(1)
-            # restoring colors
-            for line_or_dot in gh2:
-                line_or_dot.set_color(BLUE)  # back in blue
-            for line_or_dot in gx1:
-                line_or_dot.set_color(GREEN)  # back in green
 
+            sum_term = TextMobject('{:.2f}'.format(sum))
+            sum_term.move_to([offset + tw_min / 2 + i / 2 - 1 / 2 + 1 / 2 + float(len(th)) / 4 - 1 / 4, yw_min / 2 - 1 / 3 + 1 / 5, 0])
+            sum_term.scale(0.25)
+            sum_term.set_color(YELLOW)
+            self.play(Write(sum_term))
+            self.wait(1)
 
-            sum_term = 2 * offset + i + tw_max
-            sum_line = Line([sum_term / 2, 0, 0], [sum_term / 2, sum / 2, 0])
-            sum_line.set_color(YELLOW)
-            sum_dot = Dot([sum_term / 2, sum / 2, 0])
-            sum_dot.set_color(YELLOW)
-            print('$$$$$$')
-            print(len(mul_lines)) #TODO why is it fucking length 1?! (merge red and orange dots. remove previous k and dots. adjust new k)
-            print('$$$$$$')
-            self.play(Transform(VGroup(*mul_lines), sum_line), Transform(VGroup(*mul_dots), sum_dot), run_time=0.3)
+            # TODO: remove previous terms. don't forget n and y[n] and adding terms!
+
+            # sum_line = Line([sum_term / 2, 0, 0], [sum_term / 2, sum / 2, 0])
+            # sum_line.set_color(YELLOW)
+            # sum_dot = Dot([sum_term / 2, sum / 2, 0])
+            # sum_dot.set_color(YELLOW)
+            # print('$$$$$$')
+            # print(len(
+            #     mul_lines))  # TODO why is it fucking length 1?! (merge red and orange dots. remove previous k and dots. adjust new k)
+            # print('$$$$$$')
+            # self.play(Transform(VGroup(*mul_lines), sum_line), Transform(VGroup(*mul_dots), sum_dot), run_time=0.3)
             # for line, dot in zip(mul_lines, mul_dots):
             #     self.play(Transform(line, sum_line), Transform(dot, sum_dot), run_time=0.3)
             #     self.play(FadeOut(line), FadeOut(dot))
             res.append(sum)
 
             # showing the partial result
-            pr = TextMobject('{:.2f}'.format(sum))
-            pr.move_to([offset + i / 2, -2.5, 0])
-            pr.rotate(-PI / 2)
-            pr.set_color(YELLOW)
-            self.play(Write(pr))
-            res_texts.append(pr)
+            # partial_mul = TextMobject('{:.2f}'.format(sum))
+            # partial_mul.move_to([offset + i / 2, -2.5, 0])
+            # partial_mul.rotate(-PI / 2)
+            # partial_mul.set_color(YELLOW)
+            # self.play(Write(partial_mul))
+            res_texts.append(partial_mul)
 
             # Restore the state saved
             self.play(Restore(self.camera_frame))
+
+            l_res = Line([offset + i / 2 - 1 / 2, 0, 0], [offset + i / 2 - 1 / 2, sum / 2, 0])
+            l_res.set_color(YELLOW)
+            self.play(Transform(sum_term, l_res))
+            d_res = Dot([offset + i / 2 - 1 / 2, sum / 2, 0])
+            d_res.set_color(YELLOW)
+            self.play(Write(d_res, run_time=0.05))
+
+            for i in range(len(th)):
+                self.play(FadeOut(h_terms[i]), FadeOut(mul_symbols[i]), FadeOut(x_terms[i]))
+            # self.play(FadeOut(sum_term))
+            self.wait(1)
             #############################################
 
         self.wait(2)
@@ -444,3 +459,19 @@ class Conv(MovingCameraScene):
             d_res.set_color(YELLOW)
             self.play(Write(d_res, run_time=0.05))
         self.wait(2)  # TODO why the fuck does n vanish?!
+
+    # def setup_axes(self):
+    #     GraphScene.setup_axes(self)
+    #
+    #     # width of edges
+    #     self.x_axis.set_stroke(width=1)
+    #     self.y_axis.set_stroke(width=1)
+    #
+    #     # color of edges
+    #     self.x_axis.set_color(RED)
+    #     self.y_axis.set_color(RED)
+    #     self.play(
+    #         *[Write(objeto)
+    #           for objeto in [self.y_axis, self.x_axis]],
+    #         run_time=2
+    #     )
