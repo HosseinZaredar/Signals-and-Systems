@@ -213,7 +213,7 @@ class Conv(GraphScene):
         self.wait(0.5)
 
         htmtau_text = TextMobject("""
-            $$h(-\\tau)=\\delta (-\\tau)$$
+            $$h(t-\\tau)=\\delta (t-\\tau)$$
         """)
         htmtau_text.set_color(BLUE)
         htmtau_text.move_to([3.5, 2.3, 0])

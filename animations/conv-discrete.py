@@ -278,6 +278,7 @@ class Conv(MovingCameraScene):
         self.play(FadeInFrom(partial_mul, UP))
         res_texts.append(partial_mul)
 
+        rt = 0.5
         for i in range(1, int(2 * (right_offset - offset)) + 1):
             next_h_nmk = TextMobject("{\\footnotesize$h[ %d -k]$}" % (2 * offset + i))
             next_h_nmk.set_color(BLUE)
@@ -286,15 +287,19 @@ class Conv(MovingCameraScene):
             next_n_counter.move_to([offset + (tw_min + tw_max) / 4 + 0.5 * i, yw_max / 2 + 1 / 2 + 0.05 + y0, 0])
             next_n_counter.set_color(YELLOW)
             next_n_counter.scale(0.9)
+
+            if 2 * offset + i >= -2:
+                rt = 0.25
+            
             self.play(
                 window.shift, [0.5, 0, 0],
                 Transform(h_dmk, next_h_nmk),
                 Transform(n_counter, next_n_counter),
-                run_time=0.5
+                run_time=rt
             )
-            self.wait(0.5)
+            self.wait(rt)
 
-            if 1 < i < 6:
+            if 1 < i < 5:
                 # zooming camera
                 self.camera_frame.save_state()
                 location = [gh2.get_x(), gh2.get_y() - 1 / 12, 0]
@@ -302,7 +307,7 @@ class Conv(MovingCameraScene):
                     self.camera_frame.set_width, window.get_width() * 2.75,
                     self.camera_frame.move_to, location
                 )
-                self.wait(1)
+                self.wait(0.25)
 
             # doing the partial convolution
             sum = 0
@@ -319,7 +324,7 @@ class Conv(MovingCameraScene):
                 partial_mul_value = yh[len(th) - j - 1] * yx[i + tw_min + j]
                 sum += partial_mul_value
 
-                if 1 < i < 6:
+                if 1 < i < 5:
                     # write partial multiple
                     h_term = TextMobject('{:.2f}'.format(yh[len(th) - j - 1]))
                     mul_symbol = TextMobject('×')
@@ -340,8 +345,6 @@ class Conv(MovingCameraScene):
                     x_term.scale(0.25)
                     x_term.set_color(GREEN)
 
-                    self.play(Write(h_term), Write(mul_symbol), Write(x_term))
-                    self.wait(0.2)
                     h_terms.add(h_term)
                     mul_symbols.add(mul_symbol)
                     x_terms.add(x_term)
@@ -359,11 +362,14 @@ class Conv(MovingCameraScene):
                     else:
                         tx_start = tx_start + 1
 
-                    self.wait(0.5)
+
+            if 1 < i < 5:
+                self.play(Write(h_terms), Write(mul_symbols), Write(x_terms))
+                
 
             res.append(sum)
 
-            if 1 < i < 6:
+            if 1 < i < 5:
 
                 plus_symbols = VGroup()
                 for j in range(len(th) - 1):
@@ -411,10 +417,10 @@ class Conv(MovingCameraScene):
                 partial_mul.scale(0.75)
                 partial_mul.rotate(-PI / 2)
                 partial_mul.set_color(YELLOW)
-                self.play(FadeInFrom(partial_mul, UP))
+                self.play(FadeInFrom(partial_mul, UP), run_time=rt)
                 res_texts.append(partial_mul)
 
-                self.wait(0.5)
+                self.wait(rt)
 
         self.wait(1)
 
@@ -441,7 +447,10 @@ class Conv(MovingCameraScene):
         for i in range(len(t_res)):
             l_res = Line([t_res[i] / 2, 0, 0], [t_res[i] / 2, res[i] / 2, 0])
             l_res.set_color(YELLOW)
-            self.play(Transform(res_texts[i], l_res))
+            if i >= 7:
+                self.play(Transform(res_texts[i], l_res), run_time=rt)
+            else:
+                self.play(Transform(res_texts[i], l_res), run_time=rt*2.5)
             d_res = Dot([t_res[i] / 2, res[i] / 2, 0])
             d_res.set_color(YELLOW)
             self.play(Write(d_res, run_time=0.05))
