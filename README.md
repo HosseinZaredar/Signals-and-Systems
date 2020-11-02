@@ -8,8 +8,8 @@ Made by [Hossein Zaredar](https://github.com/HosseinZaredar), [Matin Tavakoli](h
 1. [Complex Exponential Signals](https://docs.google.com/presentation/d/1frYjS0-K_TlEVt97xipyOz8wYAMTt66xs4rmWNWVd98/)
 
 ## Animations:
-Animations are uploaded in our Youtube channel:
-[skrozbox](https://www.youtube.com/channel/UCIb09zInc05ctoxC6GANkeQ/featured)
+Animations are uploaded in our Youtube channel.
+1. [Discrete & Continuous Convolution](https://www.youtube.com/playlist?list=PL4iThgVpN7hmbIhHnCa7SDO0gLMoNwED_)
 
 
 ## Resources:
