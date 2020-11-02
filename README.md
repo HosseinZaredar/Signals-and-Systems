@@ -1,4 +1,4 @@
-# Signals-and-Systems
+# Signals and Systems
 
 ...<br>
 Made by [Hossein Zaredar](https://github.com/HosseinZaredar), [Matin Tavakoli](https://github.com/MatinTavakoli) and [Erfan Abedi](https://github.com/theerfan).
@@ -15,10 +15,12 @@ Animations are uploaded in our Youtube channel:
 ## Resources:
 
 * 3Blue1Brown:<br>
-...
-
+  * [Understanding e to the i pi in 3.14 minutes](https://www.youtube.com/watch?v=v0YEaeIClKY&list=LLI3aa4211RjaQw1JW9LM-Gw&index=67)
+  * [What is Euler's formula actually saying?](https://www.youtube.com/watch?v=ZxYOEwM6Wbk)
+  * [Imaginary interest rates](https://www.youtube.com/watch?v=IAEASE5GjdI)
+  
 * Mathologer:<br>
-...
+  * [e to the pi i for dummies](https://www.youtube.com/watch?v=-dhHrg-KbJ0)
 
 * Other:
-  * ...
+  * [An Intuitive Guide To Exponential Functions & e](https://betterexplained.com/articles/an-intuitive-guide-to-exponential-functions-e/)
