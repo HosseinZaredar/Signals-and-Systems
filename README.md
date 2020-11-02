@@ -1,6 +1,6 @@
 # Signals and Systems
 
-...<br>
+A more visual tour to Signals and Systems! (based on the Chapters of Signals and Systems: Alan V. Oppenheim)<br>
 Made by [Hossein Zaredar](https://github.com/HosseinZaredar), [Matin Tavakoli](https://github.com/MatinTavakoli) and [Erfan Abedi](https://github.com/theerfan).
 
 ## Slides:
