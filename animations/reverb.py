@@ -1,3 +1,5 @@
+# Developed using manim-ce
+
 from manim import *
 from scipy.signal import chirp
 
@@ -25,6 +27,20 @@ class SineMove(GraphScene, MovingCameraScene):
 
         self.play(self.camera_frame.scale, 1.2)
         self.camera_frame.save_state()
+
+        title = PangoText("Sine Sweep (sample)")
+        title.move_to([-2.5, 4, 0])
+        self.play(Write(title))
+        self.wait(0.2)
+
+        formula = MathTex(
+            r'sin(wt) \\ for \hspace{1mm} 20 \leq w \leq 40',
+            color=GREEN
+        )
+        formula.scale(0.85)
+        formula.move_to([-2.5, 2, 0])
+        self.play(Write(formula))
+        self.wait(1)
         
         self.setup_axes()
         graph = self.get_graph(lambda t : chirp(t, f0=0.2, f1=20, t1=40, method='quadratic'), x_min=0, x_max=13.5)
@@ -88,7 +104,7 @@ class ReverbGraph(GraphScene):
         loudness = PangoText("Loudness")
         loudness.next_to(self.y_axis, LEFT)
         loudness.shift(2.5 * UP)
-        original_sound = PangoText("Original Sound")ی
+        original_sound = PangoText("Original Sound")
         original_sound.next_to(area1, UP)
         original_sound.scale(0.5)
         early_reflections = PangoText("Early Reflections")
