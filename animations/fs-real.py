@@ -56,6 +56,7 @@ class FourierCirclesScene(ZoomedScene):
         )
         self.vector_clock = ValueTracker(0)
         self.add(self.vector_clock)
+        self.prev = None
 
 
     def add_vector_clock(self):
@@ -106,7 +107,6 @@ class FourierCirclesScene(ZoomedScene):
             vectors.add(vector)
             last_vector = vector
 
-        self.vectors = vectors
         return vectors
 
     def get_rotating_vector(self, coefficient, freq, center_func):
@@ -127,11 +127,27 @@ class FourierCirclesScene(ZoomedScene):
         time = self.get_vector_time()
         coef = vector.coefficient
         freq = vector.freq
-        phase = np.log(coef).imag
+        phase = np.log(coef).imag + PI / 2
 
         vector.set_length(abs(coef))
         vector.set_angle(phase + time * freq * TAU)
         vector.shift(vector.center_func() - vector.get_start())
+
+        # print(self.get_freqs())
+        if vector.freq is self.get_freqs()[-1]:
+            point = Dot([1, 1, 0], radius=0.02)
+            point.set_color(WHITE)
+            vt = self.vector_clock.get_value()
+            point.move_to([-4.5 + 4 *  (vt - 1), vector.get_end()[1], 0])
+            self.add(point)
+
+            line = DashedLine([-4.4 + 4 *  (vt - 1), vector.get_end()[1], 0], [self.center_point[0], vector.get_end()[1], 0])
+            line.set_color(RED)
+            if self.prev is not None:
+                self.remove(self.prev)
+            self.add(line)
+            self.prev = line
+
         return vector
 
     def get_circles(self, vectors):
@@ -161,7 +177,8 @@ class FourierCirclesScene(ZoomedScene):
     def get_vector_sum_path(self, vectors, color=YELLOW):
         coefs = [v.coefficient for v in vectors]
         freqs = [v.freq for v in vectors]
-        center = vectors[0].get_start()
+        # center = vectors[0].get_start()
+        center = self.center_point
 
         path = ParametricFunction(
             lambda t: center + reduce(op.add, [
@@ -175,7 +192,6 @@ class FourierCirclesScene(ZoomedScene):
             color=color,
             step_size=self.parametric_function_step_size,
         )
-        print(path)
         return path
 
     def get_drawn_path_alpha(self):
@@ -259,7 +275,7 @@ class FourierCirclesScene(ZoomedScene):
             dash_length=DEFAULT_DASH_LENGTH * 0.5,
         )
 
-    def get_coefficients_of_path(self, path, n_samples=10000, freqs=None):
+    def get_coefficients_of_path(self, path, n_samples=100000, freqs=None):
         if freqs is None:
             freqs = self.get_freqs()
         dt = 1 / n_samples
@@ -347,7 +363,6 @@ class FourierCirclesScene(ZoomedScene):
 class AbstractFourierOfTexSymbol(FourierCirclesScene):
     CONFIG = {
         "n_vectors": 50,
-        "center_point": ORIGIN,
         "slow_factor": 0.05,
         "n_cycles": None,
         "run_time": 10,
@@ -359,7 +374,7 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         "tex_config": {
             "fill_opacity": 0,
             "stroke_width": 1,
-            "stroke_color": WHITE
+            "stroke_color": BLACK
         },
         "include_zoom_camera": False,
         "scale_zoom_camera_to_full_screen": False,
@@ -395,35 +410,32 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
 
 
     def add_vectors_circles_path(self):
+
         path = self.get_path()
-        self.path_custom_position(path)
         coefs = self.get_coefficients_of_path(path)
         vectors = self.get_rotating_vectors(coefficients=coefs)
         circles = self.get_circles(vectors)
 
-
         self.set_decreasing_stroke_widths(circles)
         drawn_path = self.get_drawn_path(vectors)
-
 
         if self.start_drawn:
             self.vector_clock.increment_value(1)
 
         # rotating
-        
-        
-        self.add(path)
-        self.add(vectors[0: ])
-        self.add(circles[0: ])
+        vectors.rotate_about_origin(PI / 2)
+        circles.rotate_about_origin(PI / 2)
+        path.rotate_about_origin(PI / 2)
+        drawn_path.shift([-self.center_point[0], 0, 0])
+        drawn_path.rotate_about_origin(PI / 2)
+        drawn_path.shift(self.center_point)
+
+        self.add(vectors)
+        self.add(circles)
         self.add(drawn_path)
 
-        # vectors.shift([0, 0.15049683, 0])
-        # circles.shift([0, 0.15049683, 0])
-        # drawn_path.shift([0, 0.15049683, 0])
-        # path.shift([0, 0.15049683, 0])
-
-        self.vectors = vectors[1:]
-        self.circles = circles[1:]
+        self.vectors = vectors
+        self.circles = circles
         self.path = path
         self.drawn_path = drawn_path
 
@@ -445,7 +457,6 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         tex_mob = self.tex_class(self.tex, **self.tex_config)
         tex_mob.set_height(6)
         path = tex_mob.family_members_with_points()[0]
-        print(path)
         return path
 
 
@@ -468,8 +479,6 @@ class FourierOfTexSymbol(AbstractFourierOfTexSymbol):
         "n_vectors": 50,
         "big_radius": 2,
         "drawn_path_stroke_width": 2,
-        "center_point": [-0.0184945, -0.15049683, 0.],
-        # Duration config
         "slow_factor": 0.2,
         "n_cycles": None,
         "run_time": 10,
@@ -500,11 +509,21 @@ class FourierOfTexSymbol(AbstractFourierOfTexSymbol):
 
 class Dash(FourierOfTexSymbol):
     CONFIG = {
-        "n_vectors": 10,
+        "n_vectors": 5,
         "slow_factor": 0.1,
         "run_time": 10,
         "tex_class": TexMobject,
-        "tex": "S",
-        "function": lambda x: 2 * np.sin(2 * PI * x)
+        "function": lambda x: 2 * np.sin(2 * PI * x) + np.cos(4 * PI * x),
+        "center_point": [4, 0, 0],
     }
+
+
+
+# class Test(Scene):
+
+#     def construct(self):
+#         d = 
+#         self.wait(1)
+#         self.add(d)
+#         self.wait(1)
 
