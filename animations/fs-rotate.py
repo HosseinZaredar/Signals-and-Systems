@@ -1,4 +1,5 @@
 from manimlib.imports import *
+import threading
 
 
 class FourierCirclesScene(ZoomedScene):
@@ -56,7 +57,6 @@ class FourierCirclesScene(ZoomedScene):
         )
         self.vector_clock = ValueTracker(0)
         self.add(self.vector_clock)
-        self.prev = None
 
 
     def add_vector_clock(self):
@@ -94,28 +94,22 @@ class FourierCirclesScene(ZoomedScene):
             coefficients = self.get_coefficients()
 
         last_vector = None
-        i = 0
         for freq, coefficient in zip(freqs, coefficients):
             if last_vector:
                 center_func = last_vector.get_end
             else:
                 center_func = self.center_tracker.get_location
-
-            is_last = (i == len(freqs) - 1)
             vector = self.get_rotating_vector(
                 coefficient=coefficient,
                 freq=freq,
                 center_func=center_func,
-                is_last=is_last
             )
-
             vectors.add(vector)
             last_vector = vector
-            i += 1
 
         return vectors
 
-    def get_rotating_vector(self, coefficient, freq, center_func, is_last):
+    def get_rotating_vector(self, coefficient, freq, center_func):
         vector = Vector(RIGHT, **self.vector_config)
         vector.scale(abs(coefficient))
         if abs(coefficient) == 0:
@@ -126,50 +120,18 @@ class FourierCirclesScene(ZoomedScene):
         vector.freq = freq
         vector.coefficient = coefficient
         vector.center_func = center_func
-        if is_last:
-            vector.add_updater(self.last_vector_updater)
-        else:
-            vector.add_updater(self.update_vector)
-
-        return vector
-
-    def last_vector_updater(self, vector, dt):
-        time = self.get_vector_time()
-        coef = vector.coefficient
-        freq = vector.freq
-        phase = np.log(coef).imag + PI / 2
-
-        vector.set_length(abs(coef))
-        vector.set_angle(phase + time * freq * TAU)
-        vector.shift(vector.center_func() - vector.get_start())
-        point = Dot([1, 1, 0], radius=0.02)
-        point.set_color(WHITE)
-        vt = self.vector_clock.get_value()
-        point.move_to([-6 + 6 *  (vt - 1), vector.get_end()[1], 0])
-        self.add(point)
-
-        line = DashedLine(
-            [-5.95 + 6 *  (vt - 1), vector.get_end()[1], 0],
-            [self.center_point[0], vector.get_end()[1], 0]
-        )
-        line.set_color(ORANGE)
-        if self.prev is not None:
-            self.remove(self.prev)
-        self.add(line)
-        self.prev = line                            
-
+        vector.add_updater(self.update_vector)
         return vector
 
     def update_vector(self, vector, dt):
         time = self.get_vector_time()
         coef = vector.coefficient
         freq = vector.freq
-        phase = np.log(coef).imag + PI / 2
+        phase = np.log(coef).imag
 
         vector.set_length(abs(coef))
         vector.set_angle(phase + time * freq * TAU)
         vector.shift(vector.center_func() - vector.get_start())
-
         return vector
 
     def get_circles(self, vectors):
@@ -199,7 +161,7 @@ class FourierCirclesScene(ZoomedScene):
     def get_vector_sum_path(self, vectors, color=YELLOW):
         coefs = [v.coefficient for v in vectors]
         freqs = [v.freq for v in vectors]
-        center = self.center_point
+        center = vectors[0].get_start()
 
         path = ParametricFunction(
             lambda t: center + reduce(op.add, [
@@ -218,6 +180,23 @@ class FourierCirclesScene(ZoomedScene):
     def get_drawn_path_alpha(self):
         return self.get_vector_time()
 
+    
+    def update_path(self, path, dt):
+        stroke_width = self.drawn_path_stroke_width
+        start, end = self.interpolate_config
+        alpha = self.get_drawn_path_alpha()
+        n_curves = len(path)
+        for a, sp in zip(np.linspace(0, 1, n_curves), path):
+            b = (alpha - a)
+            if b < 0:
+                width = 0
+            else:
+                width = stroke_width * interpolate(start, end, (1 - (b % 1)))
+            sp.set_stroke(width=width)
+        path.curr_time += dt
+        return path
+
+
     def get_drawn_path(self, vectors, stroke_width=None, **kwargs):
         if stroke_width is None:
             stroke_width = self.drawn_path_stroke_width
@@ -226,21 +205,8 @@ class FourierCirclesScene(ZoomedScene):
         broken_path.curr_time = 0
         start, end = self.interpolate_config
 
-        def update_path(path, dt):
-            alpha = self.get_drawn_path_alpha()
-            n_curves = len(path)
-            for a, sp in zip(np.linspace(0, 1, n_curves), path):
-                b = (alpha - a)
-                if b < 0:
-                    width = 0
-                else:
-                    width = stroke_width * interpolate(start, end, (1 - (b % 1)))
-                sp.set_stroke(width=width)
-            path.curr_time += dt
-            return path
-
         broken_path.set_color(self.drawn_path_color)
-        broken_path.add_updater(update_path)
+        broken_path.add_updater(self.update_path)
         return broken_path
 
     def get_y_component_wave(self,
@@ -296,7 +262,7 @@ class FourierCirclesScene(ZoomedScene):
             dash_length=DEFAULT_DASH_LENGTH * 0.5,
         )
 
-    def get_coefficients_of_path(self, path, n_samples=100000, freqs=None):
+    def get_coefficients_of_path(self, path, n_samples=10000, freqs=None):
         if freqs is None:
             freqs = self.get_freqs()
         dt = 1 / n_samples
@@ -384,6 +350,7 @@ class FourierCirclesScene(ZoomedScene):
 class AbstractFourierOfTexSymbol(FourierCirclesScene):
     CONFIG = {
         "n_vectors": 50,
+        "center_point": ORIGIN,
         "slow_factor": 0.05,
         "n_cycles": None,
         "run_time": 10,
@@ -395,7 +362,7 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         "tex_config": {
             "fill_opacity": 0,
             "stroke_width": 1,
-            "stroke_color": BLACK
+            "stroke_color": WHITE
         },
         "include_zoom_camera": False,
         "scale_zoom_camera_to_full_screen": False,
@@ -404,30 +371,6 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
     }
 
     def construct(self):
-
-        # x and y axis
-
-        x_axis = Arrow(
-            [-7, 0, 0], [1.5, 0, 0],
-            stroke_width=2,
-            tip_length=0.15,
-            max_stroke_width_to_length_ratio=10,
-        )
-        x_axis.set_color(RED)
-
-        y_axis = Arrow(
-            [-6, -3.7, 0], [-6, 3.7, 0],
-            stroke_width=2,
-            tip_length=0.15,
-            max_stroke_width_to_length_ratio=10,
-        )
-        y_axis.set_color(RED)
-
-        self.play(GrowArrow(x_axis), GrowArrow(y_axis))
-        self.add(x_axis, y_axis)
-
-        self.wait(0.5)
-
 
         # This is not in the original version of the code.
         self.add_vectors_circles_path()
@@ -453,31 +396,55 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         elif self.run_time != None:
             self.wait(self.run_time)
 
+        self.wait(0.2)
+        self.vectors[0].remove_updater(self.update_vector)
+        self.vectors[1].remove_updater(self.update_vector)
+        self.vectors[2].remove_updater(self.update_vector)
+        self.circles[0].remove_updater(self.update_circle)
+        self.circles[1].remove_updater(self.update_circle)
+        self.circles[2].remove_updater(self.update_circle)
+        self.drawn_path.remove_updater(self.update_path)
+        self.wait(2)
+
+        self.play(
+            self.vectors[0].rotate_about_origin, PI/2,
+            self.vectors[1].rotate_about_origin, PI/2,
+            self.vectors[2].rotate_about_origin, PI/2,
+            self.circles[0].rotate_about_origin, PI/2,
+            self.circles[1].rotate_about_origin, PI/2,
+            self.circles[2].rotate_about_origin, PI/2,
+            self.drawn_path.rotate_about_origin, PI/2,
+        )
+        
+        self.wait(1)
+        self.play(
+            self.vectors[0].shift, self.go_right,
+            self.vectors[1].shift, self.go_right,
+            self.vectors[2].shift, self.go_right,
+            self.circles[0].shift, self.go_right,
+            self.circles[1].shift, self.go_right,
+            self.circles[2].shift, self.go_right,
+            self.drawn_path.shift, self.go_right,
+        )
+        self.wait(1)
 
     def add_vectors_circles_path(self):
-
         path = self.get_path()
         coefs = self.get_coefficients_of_path(path)
         vectors = self.get_rotating_vectors(coefficients=coefs)
         circles = self.get_circles(vectors)
 
+        ValueTracker
         self.set_decreasing_stroke_widths(circles)
         drawn_path = self.get_drawn_path(vectors)
 
         if self.start_drawn:
             self.vector_clock.increment_value(1)
 
-        # rotating
-        vectors.rotate_about_origin(PI / 2)
-        circles.rotate_about_origin(PI / 2)
-        path.rotate_about_origin(PI / 2)
-        drawn_path.shift([-self.center_point[0], -self.center_point[1], 0])
-        drawn_path.rotate_about_origin(PI / 2)
-        drawn_path.shift([self.center_point[0], self.center_point[1], 0])
-
-        self.add(vectors)
-        self.add(circles)
-        self.add(drawn_path)
+        self.play(FadeIn(drawn_path))
+        for c, v in zip(circles, vectors):
+            self.play(FadeIn(c))
+            self.add(v)
 
         self.vectors = vectors
         self.circles = circles
@@ -524,6 +491,8 @@ class FourierOfTexSymbol(AbstractFourierOfTexSymbol):
         "n_vectors": 50,
         "big_radius": 2,
         "drawn_path_stroke_width": 2,
+        "center_point": [-0.0184945, -0.15049683, 0.],
+        # Duration config
         "slow_factor": 0.2,
         "n_cycles": None,
         "run_time": 10,
@@ -554,19 +523,14 @@ class FourierOfTexSymbol(AbstractFourierOfTexSymbol):
 
 class Dash(FourierOfTexSymbol):
     CONFIG = {
-        "n_vectors": 15,
+        "n_vectors": 5,
         "slow_factor": 0.1,
         "run_time": 10,
         "tex_class": TexMobject,
+        "center_point": ORIGIN,
         "wait_before_start": 1,
-        
-
         "function": lambda x: 2.5 * (x <= 0.5) + -2.5 * (x > 0.5),
-        "center_point": [3.5, 0, 0],
-
-        # "function": lambda x: 2 * np.sin(2 * PI * x) + np.cos(4 * PI * x),
-        # "center_point": [4, 0, 0],
-
-        # "function": lambda x: 5 * x * (x <= 0.5) + (5 - 5 * x) * (x > 0.5),
-        # "center_point": [4, -2, 0],
+        "go_right": [3.5, 0, 0],
+        # "wait_before_start": 1
     }
+
