@@ -148,15 +148,16 @@ class FourierCirclesScene(ZoomedScene):
         point.move_to([-6 + 6 *  (vt - 1), vector.get_end()[1], 0])
         self.add(point)
 
-        line = DashedLine(
-            [-5.95 + 6 *  (vt - 1), vector.get_end()[1], 0],
-            [self.center_point[0], vector.get_end()[1], 0]
-        )
-        line.set_color(ORANGE)
-        if self.prev is not None:
-            self.remove(self.prev)
-        self.add(line)
-        self.prev = line                            
+        if vt >=1:
+            line = DashedLine(
+                [-5.95 + 6 *  (vt - 1), vector.get_end()[1], 0],
+                [self.center_point[0], vector.get_end()[1], 0]
+            )
+            line.set_color(ORANGE)
+            if self.prev is not None:
+                self.remove(self.prev)
+            self.add(line)
+            self.prev = line                            
 
         return vector
 
@@ -405,7 +406,7 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
 
     def construct(self):
 
-        # x and y axis
+        # # x and y axis
 
         x_axis = Arrow(
             [-7, 0, 0], [1.5, 0, 0],
@@ -423,10 +424,7 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         )
         y_axis.set_color(RED)
 
-        self.play(GrowArrow(x_axis), GrowArrow(y_axis))
         self.add(x_axis, y_axis)
-
-        self.wait(0.5)
 
 
         # This is not in the original version of the code.
@@ -483,6 +481,27 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         self.circles = circles
         self.path = path
         self.drawn_path = drawn_path
+
+        # x and y axis
+        # x_axis = Arrow(
+        #     [-7, 0, 0], [1.5, 0, 0],
+        #     stroke_width=2,
+        #     tip_length=0.15,
+        #     max_stroke_width_to_length_ratio=10,
+        # )
+        # x_axis.set_color(RED)
+
+        # y_axis = Arrow(
+        #     [-6, -3.7, 0], [-6, 3.7, 0],
+        #     stroke_width=2,
+        #     tip_length=0.15,
+        #     max_stroke_width_to_length_ratio=10,
+        # )
+        # y_axis.set_color(RED)
+
+        # self.play(GrowArrow(x_axis), GrowArrow(y_axis))
+
+        # self.wait(0.5)
 
 
     def run_one_cycle(self):
@@ -554,11 +573,11 @@ class FourierOfTexSymbol(AbstractFourierOfTexSymbol):
 
 class Dash(FourierOfTexSymbol):
     CONFIG = {
-        "n_vectors": 15,
+        "n_vectors": 101,
         "slow_factor": 0.1,
         "run_time": 10,
         "tex_class": TexMobject,
-        "wait_before_start": 1,
+        # "wait_before_start": 1.2,
         
 
         "function": lambda x: 2.5 * (x <= 0.5) + -2.5 * (x > 0.5),

@@ -267,7 +267,6 @@ class FourierCirclesScene(ZoomedScene):
             path.point_from_proportion(t)
             for t in ts
         ])
-        print(samples)
         samples -= self.center_point
         complex_samples = samples[:, 0] + 1j * samples[:, 1]
 
@@ -370,19 +369,26 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
 
     def construct(self):
 
-        # # drawing axes
-        # self.wait(0.5)
-        # x_axis = NumberLine(x_min=-16, x_max=16, unit_size=0.5, numbers_with_elongated_ticks=[])
-        # x_axis.set_stroke(width=1)
-        # x_axis.set_color(RED)
-        # y_axis = NumberLine(x_min=-10, x_max=10, unit_size=0.5, numbers_with_elongated_ticks=[])
-        # y_axis.set_stroke(width=1)
-        # y_axis.set_color(RED)
-        # y_axis.rotate(PI / 2)
-        # self.play(Write(x_axis), Write(y_axis))
-        # self.wait(1)
+        # initial text
+        start_text = TextMobject("Let's see a complex signal.")
+        start_text.scale(1.4)
+        self.play(Write(start_text))
+        self.wait(0.8)
+        self.play(FadeOut(start_text))
+        self.wait(0.5)
 
-        # self.wait(1)
+        # drawing axes
+        self.wait(0.5)
+        x_axis = NumberLine(x_min=-16, x_max=16, unit_size=0.5, numbers_with_elongated_ticks=[])
+        x_axis.set_stroke(width=1)
+        x_axis.set_color(RED)
+        y_axis = NumberLine(x_min=-10, x_max=10, unit_size=0.5, numbers_with_elongated_ticks=[])
+        y_axis.set_stroke(width=1)
+        y_axis.set_color(RED)
+        y_axis.rotate(PI / 2)
+        self.play(Write(x_axis), Write(y_axis))
+        self.wait(0.5)
+
 
         # This is not in the original version of the code.
         self.add_vectors_circles_path()
@@ -408,10 +414,21 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         elif self.run_time != None:
             self.wait(self.run_time)
 
-        # self.wait(0.2)
-        # self.vector_clock.set_value(2)
-        # self.remove(self.vector_clock)
-        # self.wait(2)
+        self.wait(0.2)
+        self.vector_clock.set_value(2)
+        self.remove(self.vector_clock)
+        self.wait(2)
+
+        self.play(FadeOut(self.drawn_path), FadeOut(self.extra), FadeOut(x_axis), FadeOut(y_axis))
+        self.wait(1)
+
+        # end text
+        end_text = TextMobject("Now let's watch it get drawn by Fourier Series...")
+        end_text.scale(1.1)
+        self.play(Write(end_text))
+        self.wait(0.5)
+        self.play(FadeOut(end_text))
+        self.wait(1)
 
 
     def add_vectors_circles_path(self):
@@ -421,20 +438,17 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         vectors = self.get_rotating_vectors(coefficients=coefs)
         circles = self.get_circles(vectors)
 
-        # setiing circles and vectors opacity to 0
-        # circles.set_opacity(0)
-        # vectors.set_opacity(0)
-
         self.set_decreasing_stroke_widths(circles)
         drawn_path = self.get_drawn_path(vectors)
 
 
         if self.start_drawn:
             self.vector_clock.increment_value(1)
-        self.add(path)
+        # self.add(path)
+        vectors.set_opacity(0)
         self.add(vectors[1: ])
-        self.add(circles[1: ])
-        self.add(drawn_path)
+        # self.add(circles[1: ])
+        # self.add(drawn_path)
 
         vectors.shift([0, 0.15049683, 0])
         circles.shift([0, 0.15049683, 0])
@@ -448,25 +462,27 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
 
 
         # drawing a point at the tip of the last vector
-        # point = TexMobject(' * ')
-        # point.set_color(WHITE)
-        # point.add_updater(lambda p: p.move_to(vectors[-1].get_end()))
+        point = TexMobject(' * ')
+        point.set_color(WHITE)
+        point.add_updater(lambda p: p.move_to(vectors[-1].get_end()))
 
-        # t = TexMobject('t = ')
-        # t.scale(0.7)
-        # t.add_updater(lambda o: o.move_to([point.get_x() + 0.3, point.get_y() + 0.3, 0]))
+        t = TexMobject('t = ')
+        t.scale(0.7)
+        t.add_updater(lambda o: o.move_to([point.get_x() + 0.3, point.get_y() + 0.3, 0]))
         
-        # # adding timer
-        # def timer_updater(t):
-        #     t.set_value(5 * (self.vector_clock.get_value() - 1))
-        #     t.move_to([point.get_x() + 0.9, point.get_y() + 0.3, 0])
+        # adding timer
+        def timer_updater(t):
+            t.set_value(5 * (self.vector_clock.get_value() - 1))
+            t.move_to([point.get_x() + 0.9, point.get_y() + 0.3, 0])
 
-        # vt = self.vector_clock.get_value()
-        # timer = DecimalNumber(5 * (vt - 1))
-        # timer.add_updater(timer_updater)
-        # timer.scale(0.7)
+        vt = self.vector_clock.get_value()
+        timer = DecimalNumber(5 * (vt - 1))
+        timer.add_updater(timer_updater)
+        timer.scale(0.7)
 
-        # self.play(FadeIn(drawn_path), FadeIn(point), FadeIn(t), FadeIn(timer))
+        self.extra = VGroup(t, timer, point)
+
+        self.play(FadeIn(drawn_path), FadeIn(point), FadeIn(t), FadeIn(timer))
 
 
     def run_one_cycle(self):
@@ -486,7 +502,6 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         tex_mob = self.tex_class(self.tex, **self.tex_config)
         tex_mob.set_height(6)
         path = tex_mob.family_members_with_points()[0]
-        print(path)
         return path
 
 
@@ -541,21 +556,10 @@ class FourierOfTexSymbol(AbstractFourierOfTexSymbol):
 
 class Sigma(FourierOfTexSymbol):
     CONFIG = {
-        "n_vectors": 2,
+        "n_vectors": 300,
         "slow_factor": 0.1,
         "run_time": 10,
         "tex_class": TexMobject,
         "tex": "\\Sigma",
-        # "wait_before_start": 1
+        "wait_before_start": 0.5
     }
-
-class Dash(FourierOfTexSymbol):
-    CONFIG = {
-        "n_vectors": 10,
-        "slow_factor": 0.1,
-        "run_time": 10,
-        "tex_class": TexMobject,
-        "tex": "S",
-        # "wait_before_start": 1
-    }
-

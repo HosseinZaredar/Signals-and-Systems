@@ -372,6 +372,14 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
 
     def construct(self):
 
+        # initial text
+        start_text = TextMobject("Let's look at the Fourier Series of a real signal.")
+        start_text.scale(1)
+        self.play(Write(start_text))
+        self.wait(0.8)
+        self.play(FadeOut(start_text))
+        self.wait(0.5)
+
         # This is not in the original version of the code.
         self.add_vectors_circles_path()
         if self.wait_before_start != None:
@@ -396,6 +404,9 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         elif self.run_time != None:
             self.wait(self.run_time)
 
+        self.wait(0.3)
+        self.vector_clock.set_value(2)
+        self.remove(self.vector_clock)
         self.wait(0.2)
         self.vectors[0].remove_updater(self.update_vector)
         self.vectors[1].remove_updater(self.update_vector)
@@ -404,7 +415,24 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
         self.circles[1].remove_updater(self.update_circle)
         self.circles[2].remove_updater(self.update_circle)
         self.drawn_path.remove_updater(self.update_path)
-        self.wait(2)
+        self.wait(1)
+
+        # end text
+        end_text1 = TextMobject("But this is boring, because the output is 1-dimensional...")
+        end_text1.shift([0, 3, 0])
+        end_text1.scale(0.85)
+        self.play(Write(end_text1))
+        self.wait(1)
+        self.play(FadeOut(end_text1))
+        self.wait(0.5)
+
+        end_text2 = TextMobject("So let's do something cool!")
+        end_text2.shift([0, 3, 0])
+        end_text2.scale(1)
+        self.play(Write(end_text2))
+        self.wait(0.8)
+        self.play(FadeOut(end_text2))
+        self.wait(1)
 
         self.play(
             self.vectors[0].rotate_about_origin, PI/2,
@@ -415,7 +443,7 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
             self.circles[2].rotate_about_origin, PI/2,
             self.drawn_path.rotate_about_origin, PI/2,
         )
-        
+
         self.wait(1)
         self.play(
             self.vectors[0].shift, self.go_right,
@@ -427,6 +455,9 @@ class AbstractFourierOfTexSymbol(FourierCirclesScene):
             self.drawn_path.shift, self.go_right,
         )
         self.wait(1)
+
+        
+
 
     def add_vectors_circles_path(self):
         path = self.get_path()
@@ -528,9 +559,7 @@ class Dash(FourierOfTexSymbol):
         "run_time": 10,
         "tex_class": TexMobject,
         "center_point": ORIGIN,
-        "wait_before_start": 1,
         "function": lambda x: 2.5 * (x <= 0.5) + -2.5 * (x > 0.5),
         "go_right": [3.5, 0, 0],
-        # "wait_before_start": 1
     }
 
