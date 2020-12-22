@@ -30,14 +30,14 @@ class PlotFourierSeries4(GraphScene):
 
         # Introduction
         title_l1 = TextMobject("CT Fourier Series")
-        title_l2 = TextMobject("Complex Signals (Sinusoids) \\#1")
+        title_l2 = TextMobject("Real Signals (Sinusoids) \\#4")
         title_l1.scale(1.8)
         title_l2.scale(1.25)
         title_l1.shift([0, 0.5, 0])
         title_l2.shift([0, -0.37, 0])
         line = Line([-4.6, 0, 0], [4.6, 0, 0])
         line.set_stroke(WHITE, 1.1, 1)
-        creators = TextMobject("Made by Matin Tavakoli \& Hossein Zaredar")
+        creators = TextMobject("Made by Hossein Zaredar \& Matin Tavakoli")
         creators.scale(0.4)
         creators.move_to([5, -3.7, 0])
         self.add(title_l1)
@@ -76,7 +76,7 @@ class PlotFourierSeries4(GraphScene):
         old_counter.set_color(BLUE)
         old_counter.move_to([3, 3, 0])
 
-        self.play(plot1.set_opacity, 0.5, plot1.set_fill, GREEN, False)
+        self.play(plot4.set_opacity, 0.5, plot4.set_fill, GREEN, False)
         self.wait(0.7)
 
         dc_func_graph = self.get_graph(self.func_to_graph_line, YELLOW)
